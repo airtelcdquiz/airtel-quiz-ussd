@@ -14,3 +14,9 @@ services:
       PORT: 3000
     command: sh -c "npm install && node src/index.js"
     restart: unless-stopped
+    networks:
+      - dokploy-network
+
+networks:
+  dokploy-network:
+    external: true  # Use the previously created shared network
