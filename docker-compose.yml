@@ -1,21 +1,41 @@
 version: "3.9"
 
 services:
-  ussd_service_default:
+  ussd-api:
     image: node:20-bullseye
-    container_name: ussd_service_default
+    container_name: ussd-api
     working_dir: /app
+    restart: unless-stopped
+
+    command: sh -c "npm install --omit=dev && node src/bootstrap/server.js"
+
     volumes:
-      - .:/app
+      - ./:/app
+
     expose :
       - "3000"
-    environment:
-      NODE_ENV: development
-      PORT: 3000
-    command: sh -c "npm install && node src/index.js"
-    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    depends_on:
+      - redis
+
     networks:
       - dokploy-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: ussd-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "no"]
+
+    expose :
+      - "6379"
+
+    networks:
+      - dokploy-network
+
 
 networks:
   dokploy-network:
