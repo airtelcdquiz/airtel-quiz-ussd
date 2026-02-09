@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   ussd_service_alvin:
-    image: node:20-alpine
+    image: node:20-bullseye
     container_name: ussd_service_alvin
     working_dir: /app
     volumes:
