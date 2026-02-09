@@ -1,9 +1,9 @@
 version: "3.9"
 
 services:
-  api:
+  ussd_service_default:
     image: node:20-alpine
-    container_name: express-api
+    container_name: ussd_service_default
     working_dir: /app
     volumes:
       - .:/app
