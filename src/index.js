@@ -69,7 +69,7 @@ app.all("/ussd", (req, res) => {
           <member>
             <name>USSD_BODY</name>
             <value>
-              <string>1.Airtel Quiz</string>
+              <string>1.Airtel Quiz !!</string>
             </value>
           </member>
 
