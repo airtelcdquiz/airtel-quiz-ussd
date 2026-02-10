@@ -4,6 +4,10 @@ const handleUssdInput = require("./ussd/router");
 const xmlResponse = require("./ussd/response");
 const { logJson, logError } = require("./utils/logger");
 
+
+const app = express();
+app.use(express.text({ type: ["text/xml", "application/xml"] }));
+
 app.post("/ussd", async (req, res) => {
   const xml = req.body;
 
@@ -60,3 +64,5 @@ app.post("/ussd", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
+app.listen(3000, () => console.log("USSD ready"));
