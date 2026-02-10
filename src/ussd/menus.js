@@ -1,4 +1,3 @@
-const fetch = require("node-fetch"); // si tu utilises node 20+, sinon axios
 
 module.exports = {
   // PAGE D'ACCUEIL
@@ -47,16 +46,16 @@ module.exports = {
 
       // Appel API pour personnaliser le message final (optionnel)
       let message = "Merci pour votre participation !";
-      try {
-        const response = await fetch(
-          "https://api.example.com/ussd-message?q2=" + encodeURIComponent(input || "")
-        );
-        const data = await response.json();
-        if (data?.message) message = data.message;
-      } catch (err) {
-        // Si erreur API, on continue avec message par défaut
-        console.error("API call failed:", err);
-      }
+      // try {
+      //   const response = await fetch(
+      //     "https://api.example.com/ussd-message?q2=" + encodeURIComponent(input || "")
+      //   );
+      //   const data = await response.json();
+      //   if (data?.message) message = data.message;
+      // } catch (err) {
+      //   // Si erreur API, on continue avec message par défaut
+      //   console.error("API call failed:", err);
+      // }
 
       return {
         text: message,
