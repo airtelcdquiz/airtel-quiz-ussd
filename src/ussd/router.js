@@ -8,29 +8,45 @@ async function handleUssdInput(session, userInput) {
 
   let menu = await getMenu(session.step || "HOME");
 
-  // 1️⃣ Sauvegarde input utilisateur
-  if (menu.save_as && userInput) {
+  // 1️⃣ Sauvegarde input UNIQUEMENT si menu le demande
+  if (menu.save_as && userInput && menu.type !== "static") {
     session.data[menu.save_as] = userInput;
   }
 
   // 2️⃣ Menu dynamique → API menu
-  if (menu.type === "dynamic" && !menu.isend && menu.api_url) {
-    const res = await fetch(menu.api_url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        sessionId: session.id,
-        input: userInput,
-        data: session.data
-      })
-    });
-    menu = await res.json(); // TOUJOURS un USSDMenu
+  if (menu.type === "dynamic" && menu.api_url) {
+    let res;
+    try {
+      res = await fetch(menu.api_url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionId: session.id,
+          input: userInput,
+          data: session.data
+        })
+      });
+    } catch (e) {
+      throw new Error(`Dynamic menu API unreachable: ${menu.api_url}`);
+    }
+
+    if (!res.ok) {
+      throw new Error(`Dynamic menu API error ${res.status}`);
+    }
+
+    const dynamicMenu = await res.json();
+
+    if (!dynamicMenu || !dynamicMenu.text) {
+      throw new Error("Invalid dynamic menu format");
+    }
+
+    menu = dynamicMenu;
   }
 
-  // 3️⃣ Menu FINAL → SUBMIT
-  if (menu.isend) {
+  // 3️⃣ MENU FINAL UNIQUEMENT
+  if (menu.type === "end") {
     if (!menu.api_url) {
-      throw new Error(`Menu ${menu.id} end=true sans apiUrl`);
+      throw new Error(`End menu ${menu.id} sans api_url`);
     }
 
     await fetch(menu.api_url, {
@@ -58,7 +74,7 @@ async function handleUssdInput(session, userInput) {
   }
 
   // 4️⃣ Navigation normale
-  session.step = menu.next_step || session.step;
+  session.step = menu.next_step;
 
   return {
     text: menu.text,
