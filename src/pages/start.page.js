@@ -1,22 +1,11 @@
-// src/pages/start.page.js
-
 const PAGES = require("../constants/pages");
 
 module.exports = {
   name: PAGES.START,
-
-  /**
-   * Affichage du menu
-   * Peut être dynamique (DB, API, cache, etc.)
-   */
-  async render(context) {
-    const { services, msisdn, lang } = context;
-
+  async render({ services, msisdn }) {
     try {
-      // Récupération utilisateur (cache / DB)
       const user = await services.user.findByMsisdn(msisdn);
 
-      // Utilisateur inconnu
       if (!user) {
         return [
           "Bienvenue sur Airtel Service",
@@ -26,7 +15,6 @@ module.exports = {
         ].join("\n");
       }
 
-      // Utilisateur connu
       return [
         `Bienvenue ${user.firstName}`,
         "1. Mon solde",
@@ -34,9 +22,7 @@ module.exports = {
         "3. Mon compte",
         "0. Quitter"
       ].join("\n");
-
     } catch (err) {
-      // fallback safe (TRÈS IMPORTANT EN USSD)
       return [
         "Service temporairement indisponible",
         "0. Quitter"
@@ -44,32 +30,19 @@ module.exports = {
     }
   },
 
-  /**
-   * Décision de navigation
-   */
   next(input, context) {
-    const { session } = context;
-
-    // Normalisation input
     const choice = (input || "").trim();
-
-    // Si utilisateur inconnu
-    if (!session.userId) {
+    if (!context.session.userId) {
       if (choice === "1") return PAGES.REGISTER;
       if (choice === "2") return PAGES.HELP;
       return PAGES.END;
     }
 
-    // Utilisateur connu
     switch (choice) {
-      case "1":
-        return PAGES.BALANCE;
-      case "2":
-        return PAGES.QUIZ;
-      case "3":
-        return PAGES.ACCOUNT;
-      default:
-        return PAGES.END;
+      case "1": return PAGES.BALANCE;
+      case "2": return PAGES.QUIZ;
+      case "3": return PAGES.ACCOUNT;
+      default: return PAGES.END;
     }
   },
 

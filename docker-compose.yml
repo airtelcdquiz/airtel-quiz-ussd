@@ -35,6 +35,21 @@ services:
 
     networks:
       - dokploy-network
+  
+  postgres:
+    image: postgres:16-alpine
+    container_name: ussd-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ussd
+      POSTGRES_PASSWORD: ussd
+      POSTGRES_DB: ussd
+    ports:
+      - "5432:5432"
+    networks:
+      - dokploy-network
+    volumes:
+      - /var/containers/volumes/prod/pgdata:/var/lib/postgresql/data
 
 
 networks:

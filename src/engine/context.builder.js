@@ -1,20 +1,24 @@
+const sessionService = require("../services/session.service");
+const userService = require("../services/user.service");
+const balanceService = require("../services/balance.service");
+
 module.exports = async function buildContext(request) {
-  const session = await sessionService.getOrCreate(request.sessionId);
+  const { sessionId, msisdn, input, operator } = request;
+
+  // récupérer ou créer session
+  const session = await sessionService.getOrCreate(sessionId);
 
   return {
-    input: request.input,
-    msisdn: request.msisdn,
-    operator: request.operator,
-    lang: session.lang || "fr",
-
     session,
     sessionService,
-
+    input,
+    msisdn,
+    operator,
+    lang: session.lang || "fr",
     services: {
       user: userService,
-      balance: balanceService,
-      quiz: quizService,
-      payment: paymentService
+      balance: balanceService
+      // ajouter plus tard quiz, paiement, etc.
     }
   };
 };
