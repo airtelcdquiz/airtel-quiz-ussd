@@ -2,13 +2,9 @@ version: "3.9"
 
 services:
   ussd_service_default:
-    image: node:20-bullseye
+    build: .
     container_name: ussd_service_default
-    working_dir: /app
-    restart: unless-stopped
-    command: sh -c "npm install --omit=dev && node src/index.js"
-    volumes:
-      - ./:/app
+    restart: unless-stopped 
     expose:
       - "3000"
     env_file:
