@@ -1,110 +1,86 @@
+const menus = require("./menus");
+const submitService = require("../services/submitService");
 const { logJson, logError } = require("../utils/logger");
-const { getMenu, getMenuText } = require("../services/menus.service");
 
 async function handleUssdInput(session, userInput) {
   session.sequence = (session.sequence || 0) + 1;
 
-  // 1️⃣ Récupérer le menu courant
-  let menu = await getMenu(session.step || "HOME");
+  const currentMenu = menus[session.step];
 
-  // 2️⃣ Sauvegarder l'input utilisateur si le menu a un save_as
-  if (menu.save_as && userInput) {
-    session.data[menu.save_as] = userInput.trim();
+  if (!currentMenu) {
+    // fallback si step invalide
+    session.step = "HOME";
+    return {
+      text: menus.HOME.handler ? (await menus.HOME.handler(session, null)).text : "Menu indisponible",
+      end: false,
+      sequence: session.sequence
+    };
   }
 
-  // 3️⃣ MENU DYNAMIQUE → Appel API
-  if (menu.type === "dynamic" && menu.api_url) {
+  let result;
+  try {
+    result = await currentMenu.handler(session, userInput);
+  } catch (err) {
+    logError(err, { stage: "menuHandler", step: session.step, sessionId: session.id });
+    return { text: "Erreur, veuillez réessayer", end: true, sequence: session.sequence };
+  }
+
+  // log JSON pour Kibana/Grafana
+  logJson({
+    event: "ROUTER_STEP",
+    step: session.step,
+    userInput,
+    sequence: session.sequence,
+    sessionData: session.data
+  });
+
+  // Si fin de parcours
+  if (result.end) {
     try {
-      const res = await fetch(menu.api_url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sessionId: session.id,
-          input: userInput,
-          data: session.data
-        })
-      });
-
-      if (!res.ok) throw new Error(`API returned ${res.status}`);
-
-      const dynamicMenu = await res.json();
-
-      if (!dynamicMenu || !dynamicMenu.text) {
-        throw new Error("Invalid dynamic menu response");
-      }
-
-      menu = dynamicMenu; // remplacer le menu courant par la réponse
+      await submitService.submit(session.data);
+      logJson({ event: "SUBMIT_DATA", sessionId: session.id, data: session.data });
     } catch (err) {
-      console.error("[USSD] Dynamic menu fetch failed:", err.message);
-      return {
-        text: "Erreur serveur, veuillez réessayer plus tard.",
-        end: true,
-        sequence: session.sequence
-      };
+      logError(err, { stage: "submitService", sessionId: session.id, sequence: session.sequence });
     }
+
+    return {
+      text: result.text,
+      end: true,
+      sequence: session.sequence
+    };
   }
 
-  // 4️⃣ MENU FINAL → submit
-  if (menu.type === "end") {
-    if (!menu.api_url) {
-      throw new Error(`End menu ${menu.id} doit avoir api_url`);
-    }
+  // navigation vers nextStep
+  session.step = result.nextStep || session.step;
 
+  // Si nextStep a un handler, récupère son texte (pour éviter que l'utilisateur voit rien)
+  const nextMenu = menus[session.step];
+
+  let text;
+  let end;
+
+  if (nextMenu?.handler) {
+    // On exécute le handler pour obtenir le texte et savoir si c'est la fin
+    const nextResult = await nextMenu.handler(session, null);
+    text = nextResult.text;
+    end = !!nextResult.end;
+  } else {
+    text = result.text;
+    end = !!result.end;
+  }
+
+  // Si end = true, soumettre les données et marquer la session terminée
+  if (end) {
     try {
-      await fetch(menu.api_url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sessionId: session.id,
-          msisdn: session.msisdn,
-          data: session.data
-        })
-      });
-
-      logJson({
-        event: "USSD_SUBMIT",
-        menuId: menu.id,
-        sessionId: session.id,
-        data: session.data
-      });
-
-      return {
-        text: menu.text,
-        end: true,
-        sequence: session.sequence
-      };
+      await submitService.submit(session.data);
     } catch (err) {
-      console.error("[USSD] Submit failed:", err.message);
-      return {
-        text: "Erreur serveur, veuillez réessayer plus tard.",
-        end: true,
-        sequence: session.sequence
-      };
+      logError(err, { stage: "submitService", sessionId: session.id });
     }
   }
-
-  // 5️⃣ DÉTERMINER LA PROCHAINE ÉTAPE (static ou options)
-  let nextStep = menu.next_step; // valeur par défaut
-
-  if (menu.options && userInput) {
-    const choice = userInput.trim();
-    nextStep = menu.options[choice] || nextStep;
-  }
-
-  // 6️⃣ Si aucune prochaine étape → menu final par défaut
-  // if (!nextStep) {
-  //   return {
-  //     text: "Merci et au revoir !",
-  //     end: true,
-  //     sequence: session.sequence
-  //   };
-  // }
-
-  session.step = nextStep;
 
   return {
-    text: menu.text,
-    end: false,
+    text,
+    end,
     sequence: session.sequence
   };
 }
