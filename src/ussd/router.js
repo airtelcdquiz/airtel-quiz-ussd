@@ -55,22 +55,34 @@ async function handleUssdInput(session, userInput) {
 
   // Si nextStep a un handler, récupère son texte (pour éviter que l'utilisateur voit rien)
   const nextMenu = menus[session.step];
-  // Ne pas recalculer le texte si le menu est END
-  if (!result.end) {
-    let text = result.text;
-    if (!text && nextMenu?.handler) {
-      try {
-        const nextResult = await nextMenu.handler(session, null);
-        text = nextResult.text;
-      } catch (err) {
-        text = "Erreur, veuillez réessayer";
-      }
-    }
-    return { text, end: false, sequence: session.sequence };
+
+  let text;
+  let end;
+
+  if (nextMenu?.handler) {
+    // On exécute le handler pour obtenir le texte et savoir si c'est la fin
+    const nextResult = await nextMenu.handler(session, null);
+    text = nextResult.text;
+    end = !!nextResult.end;
+  } else {
+    text = result.text;
+    end = !!result.end;
   }
 
-  // Si result.end = true, c’est un menu final
-  return { text: result.text, end: true, sequence: session.sequence };
+  // Si end = true, soumettre les données et marquer la session terminée
+  if (end) {
+    try {
+      await submitService.submit(session.data);
+    } catch (err) {
+      logError(err, { stage: "submitService", sessionId: session.id });
+    }
+  }
+
+  return {
+    text,
+    end,
+    sequence: session.sequence
+  };
 }
 
 module.exports = handleUssdInput;
