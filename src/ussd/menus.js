@@ -32,7 +32,7 @@ module.exports = {
       if (input) session.data.q1 = input;
 
       return {
-        text: "Question 2:\nVeuillez saisir votre réponse",
+        text: "Question 1:\nVeuillez saisir votre réponse",
         nextStep: "QUIZ_Q2",
         end: false
       };
@@ -44,8 +44,7 @@ module.exports = {
     handler: async (session, input) => {
       if (input) session.data.q2 = input;
 
-      // Appel API pour personnaliser le message final (optionnel)
-      let message = "Merci pour votre participation !";
+      // Appel API pour personnaliser le message final (optionnel) 
       // try {
       //   const response = await fetch(
       //     "https://api.example.com/ussd-message?q2=" + encodeURIComponent(input || "")
@@ -58,9 +57,9 @@ module.exports = {
       // }
 
       return {
-        text: message,
-        nextStep: null,
-        end: true
+        text: "Question 2:\nVeuillez saisir votre réponse",
+        nextStep: "FINAL",
+        end: false
       };
     }
   },
