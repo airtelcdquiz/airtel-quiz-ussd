@@ -1,88 +1,85 @@
-const menus = require("./menus");
-const submitService = require("../services/submitService");
-const { logJson, logError } = require("../utils/logger");
 
-async function handleUssdInput(session, userInput) {
-  session.sequence = (session.sequence || 0) + 1;
+module.exports = {
+  // PAGE D'ACCUEIL
+  HOME: {
+    handler: async (session, input) => {
+      // Si l'utilisateur n'a pas encore saisi, juste afficher le menu
+      if (!input) {
+        return {
+          text: "1. Airtel Quiz\n2. Infos",
+          nextStep: "HOME", // reste sur HOME pour attendre la réponse
+          end: false
+        };
+      }
 
-  const currentMenu = menus[session.step];
+      // Normaliser l'input
+      const choice = input.trim();
 
-  if (!currentMenu) {
-    // fallback si step invalide
-    session.step = "HOME";
-    return {
-      text: menus.HOME.handler ? (await menus.HOME.handler(session, null)).text : "Menu indisponible",
-      end: false,
-      sequence: session.sequence
-    };
-  }
+      // Déterminer la prochaine étape
+      const nextStep = choice === "1" ? "QUIZ_Q1" : "INFO";
 
-  let result;
-  try {
-    result = await currentMenu.handler(session, userInput);
-  } catch (err) {
-    logError(err, { stage: "menuHandler", step: session.step, sessionId: session.id });
-    return { text: "Erreur, veuillez réessayer", end: true, sequence: session.sequence };
-  }
-
-  // log JSON pour Kibana/Grafana
-  logJson({
-    event: "ROUTER_STEP",
-    step: session.step,
-    userInput,
-    sequence: session.sequence,
-    sessionData: session.data
-  });
-
-  // Si fin de parcours
-  if (result.end) {
-    try {
-      await submitService.submit(session.data);
-      logJson({ event: "SUBMIT_DATA", sessionId: session.id, data: session.data });
-    } catch (err) {
-      logError(err, { stage: "submitService", sessionId: session.id, sequence: session.sequence });
+      return {
+        text: "", // le texte sera récupéré par le router depuis nextStep.handler
+        nextStep,
+        end: false
+      };
     }
+  },
 
-    return {
-      text: result.text,
-      end: true,
-      sequence: session.sequence
-    };
-  }
+  // QUESTION 1
+  QUIZ_Q1: {
+    handler: async (session, input) => {
+      if (input) session.data.q1 = input;
 
-  // navigation vers nextStep
-  session.step = result.nextStep || session.step;
-
-  // Si nextStep a un handler, récupère son texte (pour éviter que l'utilisateur voit rien)
-  const nextMenu = menus[session.step];
-
-  let text;
-  let end;
-
-  if (nextMenu?.handler) {
-    // On exécute le handler pour obtenir le texte et savoir si c'est la fin
-    const nextResult = await nextMenu.handler(session, null);
-    text = nextResult.text;
-    end = !!nextResult.end;
-  } else {
-    text = result.text;
-    end = !!result.end;
-  }
-
-  // Si end = true, soumettre les données et marquer la session terminée
-  if (end) {
-    try {
-      await submitService.submit(session.data);
-    } catch (err) {
-      logError(err, { stage: "submitService", sessionId: session.id });
+      return {
+        text: "Question 2:\nVeuillez saisir votre réponse",
+        nextStep: "QUIZ_Q2",
+        end: false
+      };
     }
+  },
+
+  // QUESTION 2
+  QUIZ_Q2: {
+    handler: async (session, input) => {
+      if (input) session.data.q2 = input;
+
+      // Appel API pour personnaliser le message final (optionnel)
+      let message = "Merci pour votre participation !";
+      // try {
+      //   const response = await fetch(
+      //     "https://api.example.com/ussd-message?q2=" + encodeURIComponent(input || "")
+      //   );
+      //   const data = await response.json();
+      //   if (data?.message) message = data.message;
+      // } catch (err) {
+      //   // Si erreur API, on continue avec message par défaut
+      //   console.error("API call failed:", err);
+      // }
+
+      return {
+        text: message,
+        nextStep: null,
+        end: true
+      };
+    }
+  },
+
+  // ÉCRAN FINAL
+  FINAL: {
+    handler: async () => ({
+      text: "Merci pour votre participation !",
+      nextStep: null,
+      end: true
+    })
+  },
+
+  // PAGE INFO
+  INFO: {
+    handler: async () => ({
+      text: "Service Airtel Quiz.\nMerci.",
+      nextStep: null,
+      end: true
+    })
   }
-
-  return {
-    text,
-    end,
-    sequence: session.sequence
-  };
-}
-
-module.exports = handleUssdInput;
+};
