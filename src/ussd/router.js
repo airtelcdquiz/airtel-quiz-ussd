@@ -1,88 +1,71 @@
 const menus = require("./menus");
 const submitService = require("../services/submitService");
 const { logJson, logError } = require("../utils/logger");
+const { getMenu, getMenuText } = require("../services/menus.service");
 
 async function handleUssdInput(session, userInput) {
   session.sequence = (session.sequence || 0) + 1;
 
-  const currentMenu = menus[session.step];
+  let menu = await getMenu(session.step || "HOME");
 
-  if (!currentMenu) {
-    // fallback si step invalide
-    session.step = "HOME";
-    return {
-      text: menus.HOME.handler ? (await menus.HOME.handler(session, null)).text : "Menu indisponible",
-      end: false,
-      sequence: session.sequence
-    };
+  // 1️⃣ Sauvegarde input utilisateur
+  if (menu.save_as && userInput) {
+    session.data[menu.save_as] = userInput;
   }
 
-  let result;
-  try {
-    result = await currentMenu.handler(session, userInput);
-  } catch (err) {
-    logError(err, { stage: "menuHandler", step: session.step, sessionId: session.id });
-    return { text: "Erreur, veuillez réessayer", end: true, sequence: session.sequence };
+  // 2️⃣ Menu dynamique → API menu
+  if (menu.type === "dynamic" && !menu.isend && menu.api_url) {
+    const res = await fetch(menu.api_url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        sessionId: session.id,
+        input: userInput,
+        data: session.data
+      })
+    });
+    menu = await res.json(); // TOUJOURS un USSDMenu
   }
 
-  // log JSON pour Kibana/Grafana
-  logJson({
-    event: "ROUTER_STEP",
-    step: session.step,
-    userInput,
-    sequence: session.sequence,
-    sessionData: session.data
-  });
-
-  // Si fin de parcours
-  if (result.end) {
-    try {
-      await submitService.submit(session.data);
-      logJson({ event: "SUBMIT_DATA", sessionId: session.id, data: session.data });
-    } catch (err) {
-      logError(err, { stage: "submitService", sessionId: session.id, sequence: session.sequence });
+  // 3️⃣ Menu FINAL → SUBMIT
+  if (menu.isend) {
+    if (!menu.api_url) {
+      throw new Error(`Menu ${menu.id} end=true sans apiUrl`);
     }
 
+    await fetch(menu.api_url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        sessionId: session.id,
+        msisdn: session.msisdn,
+        data: session.data
+      })
+    });
+
+    logJson({
+      event: "USSD_SUBMIT",
+      menuId: menu.id,
+      sessionId: session.id,
+      data: session.data
+    });
+
     return {
-      text: result.text,
+      text: menu.text,
       end: true,
       sequence: session.sequence
     };
   }
 
-  // navigation vers nextStep
-  session.step = result.nextStep || session.step;
-
-  // Si nextStep a un handler, récupère son texte (pour éviter que l'utilisateur voit rien)
-  const nextMenu = menus[session.step];
-
-  let text;
-  let end;
-
-  if (nextMenu?.handler) {
-    // On exécute le handler pour obtenir le texte et savoir si c'est la fin
-    const nextResult = await nextMenu.handler(session, null);
-    text = nextResult.text;
-    end = !!nextResult.end;
-  } else {
-    text = result.text;
-    end = !!result.end;
-  }
-
-  // Si end = true, soumettre les données et marquer la session terminée
-  if (end) {
-    try {
-      await submitService.submit(session.data);
-    } catch (err) {
-      logError(err, { stage: "submitService", sessionId: session.id });
-    }
-  }
+  // 4️⃣ Navigation normale
+  session.step = menu.next_step || session.step;
 
   return {
-    text,
-    end,
+    text: menu.text,
+    end: false,
     sequence: session.sequence
   };
 }
+
 
 module.exports = handleUssdInput;

@@ -1,4 +1,5 @@
 
+
 module.exports = {
   // PAGE D'ACCUEIL
   HOME: {
