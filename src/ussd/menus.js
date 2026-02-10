@@ -21,8 +21,6 @@ module.exports = {
     saveAs: "q2",
     next: {
       // après la saisie, on passe automatiquement à l'écran final
-      "1": "FINAL",
-      "2": "FINAL",
       default: "FINAL"
     }
   },

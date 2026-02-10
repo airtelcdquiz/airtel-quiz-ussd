@@ -7,6 +7,11 @@ async function handleUssdInput(session, userInput) {
 
   const currentMenu = menus[session.step];
 
+  // Sauvegarde la réponse si saveAs défini
+  if (currentMenu?.saveAs && userInput) {
+    session.data[currentMenu.saveAs] = userInput;
+  }
+
   logJson({
     event: "ROUTER_STEP",
     step: session.step,
@@ -15,33 +20,32 @@ async function handleUssdInput(session, userInput) {
     sessionData: session.data
   });
 
-  if (!currentMenu) {
-    session.step = "HOME";
-    return { text: menus.HOME.text, end: false, sequence: session.sequence };
-  }
-
-  if (currentMenu.saveAs && userInput) {
-    session.data[currentMenu.saveAs] = userInput;
-  }
-
-  if (currentMenu.end) {
+  // Si fin de parcours
+  if (currentMenu?.end) {
     try {
+      logJson({ event: "SUBMIT_DATA", sessionId: session.id, data: session.data });
       await submitService.submit(session.data);
     } catch (err) {
       logError(err, { stage: "submitService", sessionId: session.id, sequence: session.sequence });
     }
 
-    logJson({
-      event: "SESSION_END",
-      sessionId: session.id,
-      sequence: session.sequence,
-      sessionData: session.data
-    });
-
-    return { text: "Merci pour votre participation", end: true, sequence: session.sequence };
+    return {
+      text: currentMenu.text,
+      end: true,
+      sequence: session.sequence
+    };
   }
 
-  const nextStep = currentMenu.next?.[userInput] || session.step;
+  // Détermine le prochain menu
+  let nextStep;
+  if (currentMenu.next?.[userInput]) {
+    nextStep = currentMenu.next[userInput];
+  } else if (currentMenu.next?.default) {
+    nextStep = currentMenu.next.default;
+  } else {
+    nextStep = session.step;
+  }
+
   session.step = nextStep;
 
   return {
