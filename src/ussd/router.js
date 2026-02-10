@@ -1,23 +1,21 @@
-const menus = require("./menus");
-const submitService = require("../services/submitService");
 const { logJson, logError } = require("../utils/logger");
 const { getMenu, getMenuText } = require("../services/menus.service");
 
 async function handleUssdInput(session, userInput) {
   session.sequence = (session.sequence || 0) + 1;
 
+  // 1️⃣ Récupérer le menu courant
   let menu = await getMenu(session.step || "HOME");
 
-  // 1️⃣ Sauvegarde input UNIQUEMENT si menu le demande
-  if (menu.save_as && userInput && menu.type !== "static") {
-    session.data[menu.save_as] = userInput;
+  // 2️⃣ Sauvegarder l'input utilisateur si le menu a un save_as
+  if (menu.save_as && userInput) {
+    session.data[menu.save_as] = userInput.trim();
   }
 
-  // 2️⃣ Menu dynamique → API menu
+  // 3️⃣ MENU DYNAMIQUE → Appel API
   if (menu.type === "dynamic" && menu.api_url) {
-    let res;
     try {
-      res = await fetch(menu.api_url, {
+      const res = await fetch(menu.api_url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -26,55 +24,83 @@ async function handleUssdInput(session, userInput) {
           data: session.data
         })
       });
-    } catch (e) {
-      throw new Error(`Dynamic menu API unreachable: ${menu.api_url}`);
+
+      if (!res.ok) throw new Error(`API returned ${res.status}`);
+
+      const dynamicMenu = await res.json();
+
+      if (!dynamicMenu || !dynamicMenu.text) {
+        throw new Error("Invalid dynamic menu response");
+      }
+
+      menu = dynamicMenu; // remplacer le menu courant par la réponse
+    } catch (err) {
+      console.error("[USSD] Dynamic menu fetch failed:", err.message);
+      return {
+        text: "Erreur serveur, veuillez réessayer plus tard.",
+        end: true,
+        sequence: session.sequence
+      };
     }
-
-    if (!res.ok) {
-      throw new Error(`Dynamic menu API error ${res.status}`);
-    }
-
-    const dynamicMenu = await res.json();
-
-    if (!dynamicMenu || !dynamicMenu.text) {
-      throw new Error("Invalid dynamic menu format");
-    }
-
-    menu = dynamicMenu;
   }
 
-  // 3️⃣ MENU FINAL UNIQUEMENT
+  // 4️⃣ MENU FINAL → submit
   if (menu.type === "end") {
     if (!menu.api_url) {
-      throw new Error(`End menu ${menu.id} sans api_url`);
+      throw new Error(`End menu ${menu.id} doit avoir api_url`);
     }
 
-    await fetch(menu.api_url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    try {
+      await fetch(menu.api_url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionId: session.id,
+          msisdn: session.msisdn,
+          data: session.data
+        })
+      });
+
+      logJson({
+        event: "USSD_SUBMIT",
+        menuId: menu.id,
         sessionId: session.id,
-        msisdn: session.msisdn,
         data: session.data
-      })
-    });
+      });
 
-    logJson({
-      event: "USSD_SUBMIT",
-      menuId: menu.id,
-      sessionId: session.id,
-      data: session.data
-    });
+      return {
+        text: menu.text,
+        end: true,
+        sequence: session.sequence
+      };
+    } catch (err) {
+      console.error("[USSD] Submit failed:", err.message);
+      return {
+        text: "Erreur serveur, veuillez réessayer plus tard.",
+        end: true,
+        sequence: session.sequence
+      };
+    }
+  }
 
+  // 5️⃣ DÉTERMINER LA PROCHAINE ÉTAPE (static ou options)
+  let nextStep = menu.next_step; // valeur par défaut
+
+  if (menu.options && userInput) {
+    const choice = userInput.trim();
+    nextStep = menu.options[choice] || nextStep;
+  }
+
+  // 6️⃣ Si aucune prochaine étape → menu final par défaut
+  if (!nextStep) {
     return {
-      text: menu.text,
+      text: "Merci et au revoir !",
       end: true,
       sequence: session.sequence
     };
   }
 
-  // 4️⃣ Navigation normale
-  session.step = menu.next_step;
+  session.step = nextStep;
 
   return {
     text: menu.text,
@@ -82,6 +108,5 @@ async function handleUssdInput(session, userInput) {
     sequence: session.sequence
   };
 }
-
 
 module.exports = handleUssdInput;
