@@ -5,22 +5,18 @@ const { buildXmlResponse } = require("../utils/xml/builder");
 module.exports = async function ussdEngine(request) {
   const context = await buildContext(request);
 
+  // Page courante = session.page
   const currentPage = registry.get(context.session.page) || registry.get("START");
 
-  // render dynamique
   const text = await currentPage.render(context);
-
-  // next page
   const nextPageName = currentPage.next(context.input, context);
 
-  // sauvegarde session
+  // Mettre à jour la session avec la prochaine page
   await context.sessionService.update(context.session.id, {
-    page: nextPageName,
-    userId: context.session.userId || null,
-    data: context.session.data || {}
+    ...context.session,
+    page: nextPageName
   });
 
-  // déterminer si session termine
   const endSession = currentPage.end || nextPageName === "END";
 
   return buildXmlResponse(context, text, endSession);
