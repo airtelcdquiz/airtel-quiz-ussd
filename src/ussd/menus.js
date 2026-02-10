@@ -1,13 +1,13 @@
 module.exports = {
   HOME: {
     handler: async (session, input) => {
-
-      
-    } ({
-      text: "1. Airtel Quiz\n2. Infos",
-      nextStep: input == "1" ? "QUIZ_Q1" : "INFO",
-      end: false
-    })
+      const cleanedInput = (input || "").trim(); // supprime espaces et retours chariot
+      return {
+        text: "1. Airtel Quiz\n2. Infos",
+        nextStep: cleanedInput === "1" ? "QUIZ_Q1" : "INFO",
+        end: false
+      };
+    }
   },
 
   QUIZ_Q1: {
