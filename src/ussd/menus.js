@@ -2,7 +2,7 @@ module.exports = {
   HOME: {
     handler: async (session, input) => ({
       text: "1. Airtel Quiz\n2. Infos",
-      nextStep: input === "1" ? "QUIZ_Q1" : "INFO",
+      nextStep: input == "1" ? "QUIZ_Q1" : "INFO",
       end: false
     })
   },
