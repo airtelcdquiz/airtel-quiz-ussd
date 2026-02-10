@@ -1,3 +1,4 @@
+const express = require("express");
 const { extractValue } = require("./utils/xml");
 const { getSession, saveSession, clearSession } = require("./ussd/session");
 const handleUssdInput = require("./ussd/router");
