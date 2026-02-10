@@ -28,41 +28,46 @@ module.exports = {
 
   // QUESTION 1
   QUIZ_Q1: {
-    handler: async (session, input) => {
-      if (input) session.data.q1 = input;
-
+  handler: async (session, input) => {
+    // 1️⃣ Affichage de la question
+    if (!input) {
       return {
-        text: "Question 2:\nVeuillez saisir votre réponse",
-        nextStep: "QUIZ_Q2",
+        text: "Question 1:\nVeuillez saisir votre réponse",
+        nextStep: "QUIZ_Q1",
         end: false
       };
     }
-  },
+
+    // 2️⃣ Réponse utilisateur
+    session.data.q1 = input.trim();
+
+    return {
+      text: "",
+      nextStep: "QUIZ_Q2",
+      end: false
+    };
+  }
+},
 
   // QUESTION 2
   QUIZ_Q2: {
-    handler: async (session, input) => {
-      if (input) session.data.q2 = input;
+      handler: async (session, input) => {
+        if (!input) {
+          return {
+            text: "Question 2:\nVeuillez saisir votre réponse",
+            nextStep: "QUIZ_Q2",
+            end: false
+          };
+        }
 
-      // Appel API pour personnaliser le message final (optionnel)
-      let message = "Merci pour votre participation !";
-      // try {
-      //   const response = await fetch(
-      //     "https://api.example.com/ussd-message?q2=" + encodeURIComponent(input || "")
-      //   );
-      //   const data = await response.json();
-      //   if (data?.message) message = data.message;
-      // } catch (err) {
-      //   // Si erreur API, on continue avec message par défaut
-      //   console.error("API call failed:", err);
-      // }
+        session.data.q2 = input.trim();
 
-      return {
-        text: message,
-        nextStep: null,
-        end: true
-      };
-    }
+        return {
+          text: "Merci pour votre participation !",
+          nextStep: null,
+          end: true
+        };
+      }
   },
 
   // ÉCRAN FINAL
