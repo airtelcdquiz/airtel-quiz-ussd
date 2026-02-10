@@ -11,7 +11,7 @@ app.post("/ussd", async (req, res) => {
   const xml = req.body;
 
   const SESSION_ID = extractValue(xml, "SESSION_ID");
-  const SEQUENCE = extractValue(xml, "SEQUENCE");
+  // const SEQUENCE = extractValue(xml, "SEQUENCE");
   const MOBILE_NUMBER = extractValue(xml, "MOBILE_NUMBER");
   const USER_INPUT = extractValue(xml, "USSD_BODY");
 
@@ -27,7 +27,7 @@ app.post("/ussd", async (req, res) => {
   res.set("Content-Type", "text/xml");
   res.send(xmlResponse({
     SESSION_ID,
-    SEQUENCE,
+    SEQUENCE: result.sequence,   // <- SEQUENCE propre ici
     MOBILE_NUMBER,
     text: result.text,
     end: result.end

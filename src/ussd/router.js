@@ -2,6 +2,9 @@ const menus = require("./menus");
 const submitService = require("../services/submitService");
 
 async function handleUssdInput(session, userInput) {
+  // Incrémente SEQUENCE automatiquement
+  session.sequence = (session.sequence || 0) + 1;
+  
   const currentMenu = menus[session.step];
 
   if (!currentMenu) {
@@ -9,6 +12,7 @@ async function handleUssdInput(session, userInput) {
     return { text: menus.HOME.text, end: false };
   }
 
+  
   // Sauvegarde donnée si nécessaire
   if (currentMenu.saveAs && userInput) {
     session.data[currentMenu.saveAs] = userInput;
