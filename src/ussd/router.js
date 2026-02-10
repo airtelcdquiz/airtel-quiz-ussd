@@ -55,21 +55,22 @@ async function handleUssdInput(session, userInput) {
 
   // Si nextStep a un handler, récupère son texte (pour éviter que l'utilisateur voit rien)
   const nextMenu = menus[session.step];
-  let text = result.text;
-  if (!text && nextMenu?.handler) {
-    try {
-      const nextResult = await nextMenu.handler(session, null);
-      text = nextResult.text;
-    } catch (err) {
-      text = "Erreur, veuillez réessayer";
+  // Ne pas recalculer le texte si le menu est END
+  if (!result.end) {
+    let text = result.text;
+    if (!text && nextMenu?.handler) {
+      try {
+        const nextResult = await nextMenu.handler(session, null);
+        text = nextResult.text;
+      } catch (err) {
+        text = "Erreur, veuillez réessayer";
+      }
     }
+    return { text, end: false, sequence: session.sequence };
   }
 
-  return {
-    text,
-    end: !!result.end,
-    sequence: session.sequence
-  };
+  // Si result.end = true, c’est un menu final
+  return { text: result.text, end: true, sequence: session.sequence };
 }
 
 module.exports = handleUssdInput;
