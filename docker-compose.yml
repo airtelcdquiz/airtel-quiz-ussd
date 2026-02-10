@@ -37,7 +37,22 @@ services:
     networks:
       - dokploy-network
     volumes:
-      - /var/containers/volumes/prod/pgdata:/var/lib/postgresql/data
+      - /var/containers/volumes/prod/ussd-postgres:/var/lib/postgresql/data
+
+  ussd-pgadmin:
+    image: dpage/pgadmin4
+    container_name: ussd-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: adminpassword
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    networks:
+      - dokploy-network
+    expose:
+      - "80"
+    depends_on:
+      - ussd-postgres
 
 
 # networks:
