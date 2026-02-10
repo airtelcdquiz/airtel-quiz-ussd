@@ -3,6 +3,6 @@
 
 module.exports = {
   port: process.env.PORT || 3000,
-  redisUrl: process.env.REDIS_URL,
+  redisUrl: "redis://redis:6379",
   sessionTtl: parseInt(process.env.USSD_SESSION_TTL || "240", 10)
 };
