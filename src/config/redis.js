@@ -4,7 +4,7 @@ const Redis = require("ioredis");
 function connectRedis(retries = 5, delay = 2000) {
   const redis = new Redis({
     host: "redis://ussd-redis",
-    port: process.env.REDIS_PORT || 6379
+    port: 6379
   });
 
   redis.on("error", async (err) => {
