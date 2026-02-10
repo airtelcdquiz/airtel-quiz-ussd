@@ -10,7 +10,14 @@ const pool = new Pool({
 });
 
 async function getMenu(menuId) {
-  const res = await pool.query("SELECT * FROM ussd_menu WHERE id=$1", [menuId]);
+  console.log("[DB] Fetch menu id =", menuId);
+
+  const res = await pool.query(
+    "SELECT * FROM ussd_menu WHERE id=$1",
+    [menuId]
+  );
+
+  console.log("[DB] Result =", res.rows);
   return res.rows[0];
 }
 
