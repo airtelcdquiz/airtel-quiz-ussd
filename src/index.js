@@ -2,6 +2,7 @@ const express = require("express");
 const { getSession, saveSession, clearSession } = require("./ussd/session");
 const handleUssdInput = require("./ussd/router");
 const xmlResponse = require("./ussd/response");
+const { extractValue } = require("./utils/xml");
 
 const app = express();
 app.use(express.text({ type: ["text/xml", "application/xml"] }));
