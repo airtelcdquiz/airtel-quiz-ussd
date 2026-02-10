@@ -1,31 +1,72 @@
-const menus = require("./menus");
 const submitService = require("../services/submitService");
 const { logJson, logError } = require("../utils/logger");
+
+const menu_home = require("./pages/home");
+
+const menus = {
+  HOME: menu_home.STARTING_POINT,
+  // Ajouter d'autres menus ici
+};
 
 async function handleUssdInput(session, userInput) {
   session.sequence = (session.sequence || 0) + 1;
 
-  const currentMenu = menus[session.step];
-
-  if (!currentMenu) {
-    // fallback si step invalide
-    session.step = "HOME";
-    return {
-      text: menus.HOME.handler ? (await menus.HOME.handler(session, null)).text : "Menu indisponible",
-      end: false,
-      sequence: session.sequence
-    };
-  }
+  // 1️⃣ Récupère le menu courant
+  let currentMenu = menus[session.step] || menus.HOME;
 
   let result;
+
   try {
-    result = await currentMenu.handler(session, userInput);
+    // 2️⃣ Menu statique avec nextSteps
+    if (currentMenu.nextSteps) {
+      // Si aucune saisie, juste afficher le menu
+      if (!userInput) {
+        result = {
+          text: currentMenu.text,
+          nextSteps: currentMenu.nextSteps,
+          end: !!currentMenu.end
+        };
+      } else {
+        const choice = (userInput || "").trim();
+        const nextStepFromChoice = currentMenu.nextSteps[choice];
+
+        if (!nextStepFromChoice) {
+          // Choix invalide → reste sur le même menu
+          return {
+            text: `Choix invalide.\n${currentMenu.text}`,
+            end: false,
+            sequence: session.sequence
+          };
+        }
+
+        // mise à jour du step
+        session.step = nextStepFromChoice;
+        currentMenu = menus[session.step];
+        // texte par défaut pour le menu suivant
+        result = {
+          text: currentMenu?.text || "",
+          end: !!currentMenu?.end
+        };
+      }
+
+    // 3️⃣ Menu dynamique avec handler
+    } else if (currentMenu.handler) {
+      result = await currentMenu.handler(session, userInput);
+
+    // 4️⃣ Menu simple statique sans nextSteps ni handler
+    } else {
+      result = {
+        text: currentMenu.text || "Menu indisponible",
+        end: !!currentMenu.end
+      };
+    }
+
   } catch (err) {
     logError(err, { stage: "menuHandler", step: session.step, sessionId: session.id });
     return { text: "Erreur, veuillez réessayer", end: true, sequence: session.sequence };
   }
 
-  // log JSON pour Kibana/Grafana
+  // 5️⃣ Log JSON pour Kibana/Grafana
   logJson({
     event: "ROUTER_STEP",
     step: session.step,
@@ -34,7 +75,7 @@ async function handleUssdInput(session, userInput) {
     sessionData: session.data
   });
 
-  // Si fin de parcours
+  // 6️⃣ Si fin de parcours → submit
   if (result.end) {
     try {
       await submitService.submit(session.data);
@@ -50,37 +91,12 @@ async function handleUssdInput(session, userInput) {
     };
   }
 
-  // navigation vers nextStep
-  session.step = result.nextStep || session.step;
-
-  // Si nextStep a un handler, récupère son texte (pour éviter que l'utilisateur voit rien)
-  const nextMenu = menus[session.step];
-
-  let text;
-  let end;
-
-  if (nextMenu?.handler) {
-    // On exécute le handler pour obtenir le texte et savoir si c'est la fin
-    const nextResult = await nextMenu.handler(session, null);
-    text = nextResult.text;
-    end = !!nextResult.end;
-  } else {
-    text = result.text;
-    end = !!result.end;
-  }
-
-  // Si end = true, soumettre les données et marquer la session terminée
-  if (end) {
-    try {
-      await submitService.submit(session.data);
-    } catch (err) {
-      logError(err, { stage: "submitService", sessionId: session.id });
-    }
-  }
+  // 7️⃣ Si nextStep n'est pas défini, reste sur le menu courant
+  session.step = session.step || currentMenu.id;
 
   return {
-    text,
-    end,
+    text: result.text,
+    end: false,
     sequence: session.sequence
   };
 }

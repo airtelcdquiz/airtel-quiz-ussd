@@ -1,12 +1,14 @@
 
 module.exports = {
   // PAGE D'ACCUEIL
-  HOME: {
-    handler: async (session, input) => {
+  HOME: { 
+      handler: async (session, input) => {
       // Si l'utilisateur n'a pas encore saisi, juste afficher le menu
       if (!input) {
+
+        // Nous devons tester si l'utilisateur existe
         return {
-          text: "1. Airtel Quiz\n2. Infos",
+          text: "Bienvenue sur Airtel Quiz !\n1. S'inscrire\n2. Infos",
           nextStep: "HOME", // reste sur HOME pour attendre la réponse
           end: false
         };
