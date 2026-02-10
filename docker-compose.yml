@@ -6,7 +6,7 @@ services:
     container_name: ussd_service_default
     working_dir: /app
     restart: unless-stopped
-    command: sh -c "npm install --omit=dev && node src/bootstrap/server.js"
+    command: sh -c "npm install --omit=dev && node src/index.js"
     volumes:
       - ./:/app
     expose:
