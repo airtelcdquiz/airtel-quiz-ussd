@@ -44,6 +44,10 @@ services:
       - /var/containers/volumes/prod/pgdata:/var/lib/postgresql/data
 
 
+# networks:
+#   dokploy-network:
+#     external: true  # Use the previously created shared network
+
 networks:
   dokploy-network:
-    external: true  # Use the previously created shared network
+    driver: bridge
