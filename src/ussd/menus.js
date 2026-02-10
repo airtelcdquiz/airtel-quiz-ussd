@@ -18,7 +18,11 @@ module.exports = {
 
   QUIZ_Q2: {
     text: "Question 2:\n1. A\n2. B",
-    saveAs: "q2",
+    saveAs: "q2", 
+    next: {
+      "1": "QUIZ_Q2",
+      "2": "QUIZ_Q2"
+    },
     end: true
   },
 
