@@ -92,13 +92,13 @@ async function handleUssdInput(session, userInput) {
   }
 
   // 6️⃣ Si aucune prochaine étape → menu final par défaut
-  if (!nextStep) {
-    return {
-      text: "Merci et au revoir !",
-      end: true,
-      sequence: session.sequence
-    };
-  }
+  // if (!nextStep) {
+  //   return {
+  //     text: "Merci et au revoir !",
+  //     end: true,
+  //     sequence: session.sequence
+  //   };
+  // }
 
   session.step = nextStep;
 
