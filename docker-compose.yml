@@ -19,7 +19,7 @@ services:
       - .env
 
     depends_on:
-      - redis
+      - ussd-redis
 
     networks:
       - dokploy-network
