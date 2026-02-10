@@ -6,21 +6,15 @@ services:
     container_name: ussd_service_default
     working_dir: /app
     restart: unless-stopped
-
     command: sh -c "npm install --omit=dev && node src/bootstrap/server.js"
-
     volumes:
       - ./:/app
-
-    expose :
+    expose:
       - "3000"
-
     env_file:
       - .env
-
     depends_on:
       - ussd-redis
-
     networks:
       - dokploy-network
 
@@ -29,10 +23,8 @@ services:
     container_name: ussd-redis
     restart: unless-stopped
     command: ["redis-server", "--appendonly", "no"]
-
-    expose :
+    expose:
       - "6379"
-
     networks:
       - dokploy-network
   
@@ -44,8 +36,8 @@ services:
       POSTGRES_USER: ussd
       POSTGRES_PASSWORD: ussd
       POSTGRES_DB: ussd
-    ports:
-      - "5432:5432"
+    expose:
+      - "5432"
     networks:
       - dokploy-network
     volumes:
