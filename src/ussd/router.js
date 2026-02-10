@@ -16,6 +16,7 @@ async function handleUssdInput(session, userInput) {
 
   // Fin du parcours
   if (currentMenu.end) {
+    console.log(`Fin du parcours : `, session.data)
     await submitService.submit(session.data);
     return { text: "Merci pour votre participation", end: true };
   }
