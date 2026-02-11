@@ -26,7 +26,7 @@ async function handleUssdInput(session, userInput, msisdn) {
     session.data[session.stepSaveAs] = userInputTrimmed;
   }
 
-  if(session.nextSteps && userInputTrimmed) {
+  if((session.nextSteps  || session.nextStep )&& userInputTrimmed) {
     if(session.nextSteps[userInputTrimmed]){
       step = session.nextSteps[userInputTrimmed];
       console.log(">>>>>>>> LE USER A CHOISI: ", userInputTrimmed, "=> STEP SUIVANT: ", step);
@@ -96,7 +96,7 @@ async function handleUssdInput(session, userInput, msisdn) {
 
   session.nextSteps = result.nextSteps; // pour le menu suivant
   session.nextStep = result.nextStep // default;
-  session.step = step || session.step; // Mettre à jour le step pour les logs
+  session.step = step  // Mettre à jour le step pour les logs
   session.stepSaveAs = currentMenu.saveAs; // pour les logs
 
   // 6️⃣ Retour menu courant ou suivant
