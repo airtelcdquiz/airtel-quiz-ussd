@@ -12,22 +12,29 @@ const menus = {
 };
 
 async function handleUssdInput(session, userInput, msisdn) {
+  let step = null ;
   let userInputTrimmed = userInput ? userInput.trim() : null;
   // Injecter MSISDN dès le début
   session.msisdn = session.msisdn || msisdn;
 
   // Compteur de séquence
   session.sequence = (session.sequence || 0) + 1;
+  
+  if(session.step && session.stepSaveAs && userInputTrimmed ){
+    // Sauvegarder l'input de l'utilisateur dans session.data si saveAs est défini
+    session.data = session.data || {};
+    session.data[session.stepSaveAs] = userInputTrimmed;
+  }
 
   if(session.nextSteps && userInputTrimmed) {
-    session.step = session.nextSteps[userInputTrimmed] || session.nextStep ;
+    step = session.nextSteps[userInputTrimmed] || session.nextStep ;
     delete session.nextSteps; // Clear nextSteps after using
     delete session.nextStep;
     userInputTrimmed = null; // Clear userInput after using
   }
 
   // Récupérer le menu courant
-  let currentMenu = menus[session.step] || menus.HOME;
+  let currentMenu = menus[step] || menus.HOME;
   let result;
 
   try {
@@ -129,9 +136,11 @@ async function handleUssdInput(session, userInput, msisdn) {
       sequence: session.sequence
     };
   }
-  
+
   session.nextSteps = result.nextSteps; // pour le menu suivant
   session.nextStep = session.nextStep // default;
+  session.step = step || session.step; // Mettre à jour le step pour les logs
+  session.stepSaveAs = currentMenu.saveAs; // pour les logs
 
   // 6️⃣ Retour menu courant ou suivant
   return {
