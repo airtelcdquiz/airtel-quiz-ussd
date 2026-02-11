@@ -23,13 +23,13 @@ module.exports = {
                 });
                 console.log({
                     event: "HOME_HANDLER",
-                    userData: userData,
+                    userData: userData.data,
                     sessionId: session.id,
                     mobileNumber: session.mobileNumber
                 });
                 userData = userData?.data;
                 if (userData.exist === true) {
-                    session.data.user = userData.user;
+                    session.data.user = userData;
                     return {
                         text: `Bienvenue ${userData.user.name} !\n1. Repondre à la question\n2. Verifier mon score\n3. Infos`,
                         nextSteps: {
