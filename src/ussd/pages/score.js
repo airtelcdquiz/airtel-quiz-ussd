@@ -10,7 +10,7 @@ module.exports = {
         text: "Votre scrore est en cours de calcul. Il vous sera envoyé par SMS", 
         nextStep:  "END_APPLICATION" ,
         url: "http://quiz-user-service:3000/api/scores",
-        end: false
+        end: true
     },
 
 }

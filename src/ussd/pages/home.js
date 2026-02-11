@@ -24,7 +24,7 @@ module.exports = {
                     return {
                         text: `Bienvenue ${userData.name} !\n1. Repondre à la question\n2. Verifier mon score\n3. Infos`,
                         nextSteps: {
-                            "1": "ANSWER_QUESTION",
+                            "1": "ANSWER",
                             "2": "CHECK_SCORE",
                             "3": "INFO"
                         },
