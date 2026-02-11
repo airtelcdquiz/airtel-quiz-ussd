@@ -12,17 +12,4 @@ module.exports = {
             nextStep:  "ASK_AGE" ,
             end: false
         },
-    ASK_AGE: {
-            step: "ASK_AGE",
-            text: "Merci ! Maintenant, veuillez entrer votre âge :",
-            saveAs: "age",
-            nextStep: "END_REGISTER",
-            end: false
-        },
-    END_REGISTER: {
-            step: "END_REGISTER",
-            text: "Merci ! Votre inscription est terminée.",
-            nextStep: "END_REGISTER",
-            end: true
-        }
 }
