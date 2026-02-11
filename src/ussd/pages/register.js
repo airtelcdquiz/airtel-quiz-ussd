@@ -55,7 +55,7 @@ module.exports = {
             step: "END_REGISTER",
             text: "Merci ! Vos données sont envoyées et en cours d'examen.",
             nextStep: "END_REGISTER",
-            url: "http://quiz-user-service:3000/api/users/",
+            url: "/users/",
             end: true
         }
 }

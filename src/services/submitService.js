@@ -1,9 +1,9 @@
-const axios = require("axios");
+const api = require("../utils/api");
 
 async function submit(url, data) {
   try {
     console.log(data);
-    await axios.post(url, data);
+    await api.post(url, data);
   } catch (e) {
     console.error("Submit failed", e.message);
   }
