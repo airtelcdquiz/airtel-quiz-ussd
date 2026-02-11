@@ -60,7 +60,7 @@ async function handleUssdInput(session, userInput, msisdn) {
         logJson({ event: "USER_INPUT_STEP_DEFAULT", input: userInputTrimmed, nextStep: step, sessionId: session.id });
       }
     }
-    userInputTrimmed = null; // Clear userInput after using
+    
   }else{
     logJson({ event: "USER_INPUT_NO_STEP", input: userInputTrimmed, sessionId: session.id });
   }
@@ -119,7 +119,7 @@ async function handleUssdInput(session, userInput, msisdn) {
       sequence: session.sequence
     };
   }
-
+  userInputTrimmed = null; // Clear userInput after using
   session.nextSteps = result.nextSteps; // pour le menu suivant
   session.nextStep = result.nextStep // default;
   session.step = step  // Mettre à jour le step pour les logs
