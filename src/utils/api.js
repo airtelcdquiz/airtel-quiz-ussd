@@ -1,6 +1,6 @@
 
 const axios_instance = require("axios").create({
-    baseURL: "https://quiz-user-service.airtelquiz.com/api",
+    baseURL: "http://quiz-user-service:3000/api",
     timeout: 5000,
     headers: { "Content-Type": "application/json" }
 });

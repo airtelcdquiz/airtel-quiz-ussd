@@ -19,7 +19,7 @@ async function handleUssdInput(session, userInput, msisdn) {
 
   // Compteur de séquence
   session.sequence = (session.sequence || 0) + 1;
-  
+
   if(session.step && session.stepSaveAs && userInputTrimmed ){
     // Sauvegarder l'input de l'utilisateur dans session.data si saveAs est défini
     session.data = session.data || {};
@@ -27,7 +27,13 @@ async function handleUssdInput(session, userInput, msisdn) {
   }
 
   if(session.nextSteps && userInputTrimmed) {
-    step = session.nextSteps[userInputTrimmed] || session.nextStep ;
+    if(session.nextSteps[userInputTrimmed]){
+      step = session.nextSteps[userInputTrimmed];
+    }else if(session.nextStep){
+      step = session.nextStep;
+    }else{
+      step = null;
+    }
     delete session.nextSteps; // Clear nextSteps after using
     delete session.nextStep;
     userInputTrimmed = null; // Clear userInput after using
