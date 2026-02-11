@@ -30,18 +30,13 @@ async function handleUssdInput(session, userInput, msisdn) {
     if(session.nextSteps[userInputTrimmed]){
       step = session.nextSteps[userInputTrimmed];
       console.log(">>>>>>>> LE USER A CHOISI: ", userInputTrimmed, "=> STEP SUIVANT: ", step);
-
-        delete session.nextSteps; // Clear nextSteps after using
-        delete session.nextStep;
     }else if(session.nextStep){
       step = session.nextStep;
       console.log(">>>>>>>> STEP SUIVANT PAR DEFAUT: ", step);
-      delete session.nextSteps; // Clear nextSteps after using
-      delete session.nextStep;
-    }else{ 
-      console.log(">>>>>>>> PAS DE STEP SUIVANT DEFINI POUR CE CHOIX: ", userInputTrimmed, "=> RESTE SUR LE MEME MENU");
     }
     userInputTrimmed = null; // Clear userInput after using
+  }else{
+    console.log(">>>>>>>> PAS DE STEP SUIVANT DEFINI: ", session.nextSteps, session.nextStep, "=> RESTE SUR LE MEME MENU");
   }
 
   // Récupérer le menu courant
