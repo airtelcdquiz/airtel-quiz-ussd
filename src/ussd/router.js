@@ -18,9 +18,12 @@ async function handleUssdInput(session, userInput, msisdn) {
   // Compteur de séquence
   session.sequence = (session.sequence || 0) + 1;
 
+  if(session.nextSteps && userInput){
+    session.step = session.nextSteps[userInput.trim()] || session.nextStep ;
+  }
+
   // Récupérer le menu courant
   let currentMenu = menus[session.step] || menus.HOME;
-
   let result;
 
   try {
@@ -67,12 +70,12 @@ async function handleUssdInput(session, userInput, msisdn) {
     // 2️⃣ Menu dynamique ou statique avec handler
     else if (currentMenu.handler) {
       // Sauvegarder input si saveAs défini
-      if (currentMenu.saveAs && userInput) {
-        session.data = session.data || {};
-        session.data[currentMenu.saveAs] = userInput;
-      }
-
+      // if (currentMenu.saveAs && userInput) {
+      //   session.data = session.data || {};
+      //   session.data[currentMenu.saveAs] = userInput;
+      // }
       result = await currentMenu.handler(session, userInput);
+      // session.nextSteps = result.nextSteps; // pour le menu suivant
     }
 
     // 3️⃣ Menu simple statique sans handler ni nextSteps
@@ -116,6 +119,8 @@ async function handleUssdInput(session, userInput, msisdn) {
       sequence: session.sequence
     };
   }
+  session.nextSteps = result.nextSteps; // pour le menu suivant
+  session.nextStep = session.nextStep // default;
 
   // 6️⃣ Retour menu courant ou suivant
   return {
