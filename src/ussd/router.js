@@ -19,19 +19,12 @@ async function handleUssdInput(session, userInput) {
   try {
     // 2️⃣ Menu statique avec nextSteps
     if (currentMenu.nextSteps) {
-      // Si aucune saisie, juste afficher le menu
-      if (!userInput) {
-        result = {
-          text: currentMenu.text,
-          nextSteps: currentMenu.nextSteps,
-          end: !!currentMenu.end
-        };
-      } else {
-        const choice = (userInput || "").trim();
+      // si on a un input
+      if (userInput) {
+        const choice = userInput.trim();
         const nextStepFromChoice = currentMenu.nextSteps[choice];
 
         if (!nextStepFromChoice) {
-          // Choix invalide → reste sur le même menu
           return {
             text: `Choix invalide.\n${currentMenu.text}`,
             end: false,
@@ -39,22 +32,32 @@ async function handleUssdInput(session, userInput) {
           };
         }
 
-        // mise à jour du step
+        // Mettre à jour le step avant d’appeler le handler
         session.step = nextStepFromChoice;
         currentMenu = menus[session.step];
-        // texte par défaut pour le menu suivant
+
+      } else {
+        // pas d'input : rester sur le menu courant
         result = {
-          text: currentMenu?.text || "",
-          end: !!currentMenu?.end
+          text: currentMenu.text,
+          nextSteps: currentMenu.nextSteps,
+          end: !!currentMenu.end
         };
       }
+    }
 
-    // 3️⃣ Menu dynamique avec handler
-    } else if (currentMenu.handler) {
+    // 3️⃣ Menu dynamique ou statique avec handler
+    if (currentMenu?.handler) {
+      // sauvegarde input si saveAs défini
+      if (currentMenu.saveAs && userInput) {
+        session.data = session.data || {};
+        session.data[currentMenu.saveAs] = userInput;
+      }
+
       result = await currentMenu.handler(session, userInput);
 
-    // 4️⃣ Menu simple statique sans nextSteps ni handler
-    } else {
+    // 4️⃣ Menu simple statique sans handler ni nextSteps
+    } else if (!result) {
       result = {
         text: currentMenu.text || "Menu indisponible",
         end: !!currentMenu.end
@@ -66,7 +69,7 @@ async function handleUssdInput(session, userInput) {
     return { text: "Erreur, veuillez réessayer", end: true, sequence: session.sequence };
   }
 
-  // 5️⃣ Log JSON pour Kibana/Grafana
+  // 5️⃣ Log JSON
   logJson({
     event: "ROUTER_STEP",
     step: session.step,
@@ -75,7 +78,7 @@ async function handleUssdInput(session, userInput) {
     sessionData: session.data
   });
 
-  // 6️⃣ Si fin de parcours → submit
+  // 6️⃣ Fin de parcours
   if (result.end) {
     try {
       await submitService.submit(session.data);
@@ -91,14 +94,12 @@ async function handleUssdInput(session, userInput) {
     };
   }
 
-  // 7️⃣ Si nextStep n'est pas défini, reste sur le menu courant
-  session.step = session.step || currentMenu.id;
-
   return {
     text: result.text,
     end: false,
     sequence: session.sequence
   };
 }
+
 
 module.exports = handleUssdInput;
