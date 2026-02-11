@@ -3,13 +3,34 @@ const { logJson, logError } = require("../utils/logger");
 
 const menu_home = require("./pages/home");
 const menu_register = require("./pages/register");
+const menu_info = require("./pages/info");
+const menu_score = require("./pages/score");
+const menu_answer = require("./pages/answer");
+const menu_commun = require("./pages/commun");
 
 const menus = {
   HOME: menu_home.STARTING_POINT,
-  START_REGISTER: menu_register.START_REGISTER,
-  ASK_AGE: menu_register.ASK_AGE,
+  INFO: menu_info.INFO,
+  CHECK_SCORE: menu_score.CHECK_SCORE,
+
+  // REGISTER PAGES
+  START_REGISTER: menu_register.START_REGISTER, 
+  SCHOOL_CODE: menu_register.SCHOOL_CODE,
+  SCHOOL_LEVEL: menu_register.SCHOOL_LEVEL,
+  SCHOOL_LEVEL_BASIC: menu_register.SCHOOL_LEVEL_BASIC,
+  SCHOOL_LEVEL_HUMANITY: menu_register.SCHOOL_LEVEL_HUMANITY,
+  SCHOOL_LEVEL_HUMANITY_CLASS: menu_register.SCHOOL_LEVEL_HUMANITY_CLASS,
   END_REGISTER: menu_register.END_REGISTER,
-  // Ajouter d'autres menus ici
+
+  // ANSWER PAGES
+  ANSWER: menu_answer.ANSWER,
+  END_ANSWER: menu_answer.END_ANSWER,
+
+  // Score PAGES
+  CHECK_SCORE: menu_score.CHECK_SCORE,
+
+  // COMMUN PAGES
+  END_APPLICATION: menu_commun.END_APPLICATION
 };
 
 async function handleUssdInput(session, userInput, msisdn) {

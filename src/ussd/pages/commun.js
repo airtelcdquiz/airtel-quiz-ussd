@@ -1,15 +1,15 @@
 const { text } = require("express");
 const { api } = require("../../utils/api");
 const { logJson, logError } = require("../../utils/logger");
+const { END_REGISTER } = require("./register");
 
 module.exports = {
 
     // PAGE D'ACCUEIL
-    START_REGISTER: {
-            step: "START_REGISTER",
-            text: "Pour vous inscrire, veuillez entrer votre nom complet :",
-            saveAs: "name",
-            nextStep:  "ASK_AGE" ,
-            end: false
-        },
+    END_APPLICATION: {
+        step: "END_APPLICATION",
+        text: "Merci !",
+        nextStep: "END_APPLICATION",
+        end: true
+    },
 }
