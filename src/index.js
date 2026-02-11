@@ -66,4 +66,4 @@ app.post("/ussd", async (req, res) => {
   }
 });
 
-app.listen(3000, () => console.log("USSD ready"));
+app.listen(3000, () => logJson({ event: "SERVER_STARTED", port: 3000 }));

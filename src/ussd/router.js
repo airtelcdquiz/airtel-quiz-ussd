@@ -52,24 +52,24 @@ async function handleUssdInput(session, userInput, msisdn) {
     try{  
       if(session.nextSteps[userInputTrimmed]){
         step = session.nextSteps[userInputTrimmed];
-        console.log(">>>>>>>> LE USER A CHOISI: ", userInputTrimmed, "=> STEP SUIVANT: ", step);
+        logJson({ event: "USER_INPUT_STEP", input: userInputTrimmed, nextStep: step, sessionId: session.id }); 
       } 
     }catch(e){
       if(session.nextStep){
         step = session.nextStep;
-        console.log(">>>>>>>> STEP SUIVANT PAR DEFAUT: ", step);
+        logJson({ event: "USER_INPUT_STEP_DEFAULT", input: userInputTrimmed, nextStep: step, sessionId: session.id });
       }
     }
     userInputTrimmed = null; // Clear userInput after using
   }else{
-    console.log(">>>>>>>> PAS DE STEP SUIVANT DEFINI: ", session.nextSteps, session.nextStep, "=> RESTE SUR LE MEME MENU");
+    logJson({ event: "USER_INPUT_NO_STEP", input: userInputTrimmed, sessionId: session.id });
   }
 
   // Récupérer le menu courant
   let currentMenu = menus[step] || menus.HOME;
   let result;
 
-  console.log(">>>>>>>> MENU COURANT: ", currentMenu);
+  logJson({ event: "CURRENT_MENU", menu: currentMenu.step, sessionId: session.id }); 
 
   try {
     if (currentMenu.handler) { 

@@ -1,37 +1,29 @@
 const { api } = require("../utils/api");
+const { logJson, logError } = require("../utils/logger");
 
 async function submit(url, data) {
   try {
     if (typeof url !== "string") {
-      console.error(JSON.stringify(url));
+      logError(new Error("URL must be a string"), { stage: "submitService", url, data }); 
       throw new Error("URL must be a string : " + url, typeof url);
     }
 
-    console.log("Submitting to:", url, "data:", data);
+    logJson({ event: "SUBMIT_START", url, data }); 
     result = await api.post(String(url), data).catch(err => {
-      console.error("#############################");
-      console.error("Submit API error >>>>>>>>>>>>>");
-      console.error(err.response?.data || err.message || err);
-      console.error("#############################");
+      logError(err, { stage: "submitService", url, data }); 
       throw new Error("Submit API error: " + (err.response?.data || err.message || err));
     });
 
     if (!result || !result.data) {
-      console.error("#########################");
-      console.error("Invalid submit response:");
-      console.error(result);
-      console.error("#########################");
+      logError(new Error("Invalid submit response"), { stage: "submitService", url, data, result }); 
       throw new Error("Invalid submit response");
     } else {
-      console.error("#########################");
-      console.error("Submit response:");
-      console.error(result.data);
-      console.error("#########################");
+      logJson({ event: "SUBMIT_SUCCESS", url, data, response: result.data }); 
     }
 
     return result.data;
   } catch (e) {
-    console.error("Submit failed", e.message);
+    logError(e, { stage: "submitService", url, data }); 
     throw e;
   }
 }

@@ -11,7 +11,7 @@ module.exports = {
                 let userData = null;
                 userData = await api.get(`/users/${session.mobileNumber}`).catch(err => {
                     // Sinon, log l'erreur et afficher un message générique à l'utilisateur
-                    console.error("Erreur API:", err);
+                    logError(err, { stage: "STARTING_POINT_HANDLER", sessionId: session.id, mobileNumber: session.mobileNumber });
                     return {
                         text: "Une erreur est survenue, veuillez réessayer plus tard.",
                         nextStep: "STARTING_POINT", // reste sur STARTING_POINT pour attendre la réponse
