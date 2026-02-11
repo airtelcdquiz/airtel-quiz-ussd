@@ -8,6 +8,7 @@ const menus = {
   HOME: menu_home.STARTING_POINT,
   START_REGISTER: menu_register.START_REGISTER,
   ASK_AGE: menu_register.ASK_AGE,
+  END_REGISTER: menu_register.END_REGISTER,
   // Ajouter d'autres menus ici
 };
 
