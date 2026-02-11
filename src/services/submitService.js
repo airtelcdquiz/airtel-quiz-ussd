@@ -3,6 +3,7 @@ const { api } = require("../utils/api");
 async function submit(url, data) {
   try {
     if (typeof url !== "string") {
+      console.error(JSON.stringify(url));
       throw new Error("URL must be a string : " + url, typeof url);
     }
 
