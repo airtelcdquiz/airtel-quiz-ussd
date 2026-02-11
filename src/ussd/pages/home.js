@@ -7,7 +7,6 @@ module.exports = {
     STARTING_POINT: {
             step: "STARTING_POINT",
             handler: async (session, input) => {
-                console.log(session);
                 //On tente de charger les données de l'utilisateur pour savoir s'il est déjà inscrit ou pas
                 let userData = null;
                 userData = await api.get(`/users/${session.mobileNumber}`).catch(err => {
@@ -18,12 +17,6 @@ module.exports = {
                         nextStep: "STARTING_POINT", // reste sur STARTING_POINT pour attendre la réponse
                         end: true
                     };
-                });
-                console.log({
-                    event: "HOME_HANDLER",
-                    userData: userData.data,
-                    sessionId: session.id,
-                    mobileNumber: session.mobileNumber
                 });
                 userData = userData?.data;
                 if (userData.exist === true) {
