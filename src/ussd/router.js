@@ -44,7 +44,7 @@ async function handleUssdInput(session, userInput, msisdn) {
   let result;
 
   console.log(">>>>>>>> MENU COURANT: ", currentMenu);
-  
+
   try {
     if (currentMenu.handler) { 
       result = await currentMenu.handler(session, userInputTrimmed); 
@@ -95,7 +95,7 @@ async function handleUssdInput(session, userInput, msisdn) {
   }
 
   session.nextSteps = result.nextSteps; // pour le menu suivant
-  session.nextStep = session.nextStep // default;
+  session.nextStep = result.nextStep // default;
   session.step = step || session.step; // Mettre à jour le step pour les logs
   session.stepSaveAs = currentMenu.saveAs; // pour les logs
 
