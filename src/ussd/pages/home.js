@@ -7,6 +7,7 @@ module.exports = {
     STARTING_POINT: {
             step: "STARTING_POINT",
             handler: async (session, input) => {
+                console.log(session);
                 //On tente de charger les données de l'utilisateur pour savoir s'il est déjà inscrit ou pas
                 let userData = null;
                 userData = await api.get(`/users/${session.mobileNumber}`).catch(err => {
