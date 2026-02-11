@@ -2,11 +2,11 @@ const redis = require("../redis");
 
 const SESSION_TTL = 300; // 5 min
 
-async function getSession(sessionId) {
+async function getSession(sessionId, defaultSession = { step: "HOME", data: {}, sequence: 1 }) {
   const data = await redis.get(sessionId);
   return data
     ? JSON.parse(data)
-    : { step: "HOME", data: {}, sequence: 1 }; // ajout sequence
+    : defaultSession;
 }
 
 async function saveSession(sessionId, session) {
