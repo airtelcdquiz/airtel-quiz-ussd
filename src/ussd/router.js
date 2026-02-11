@@ -2,32 +2,36 @@ const submitService = require("../services/submitService");
 const { logJson, logError } = require("../utils/logger");
 
 const menu_home = require("./pages/home");
+const menu_register = require("./pages/register");
 
 const menus = {
   HOME: menu_home.STARTING_POINT,
-  START_REGISTER: require("./pages/register").START_REGISTER,
-  ASK_AGE: require("./pages/register").ASK_AGE,
-  
+  START_REGISTER: menu_register.START_REGISTER,
+  ASK_AGE: menu_register.ASK_AGE,
   // Ajouter d'autres menus ici
 };
 
-async function handleUssdInput(session, userInput) {
+async function handleUssdInput(session, userInput, msisdn) {
+  // Injecter MSISDN dès le début
+  session.msisdn = session.msisdn || msisdn;
+
+  // Compteur de séquence
   session.sequence = (session.sequence || 0) + 1;
 
-  // 1️⃣ Récupère le menu courant
+  // Récupérer le menu courant
   let currentMenu = menus[session.step] || menus.HOME;
 
   let result;
 
   try {
-    // 2️⃣ Menu statique avec nextSteps
+    // 1️⃣ Menu statique avec nextSteps
     if (currentMenu.nextSteps) {
-      // si on a un input
       if (userInput) {
         const choice = userInput.trim();
         const nextStepFromChoice = currentMenu.nextSteps[choice];
 
         if (!nextStepFromChoice) {
+          // Choix invalide : rester sur le même menu
           return {
             text: `Choix invalide.\n${currentMenu.text}`,
             end: false,
@@ -39,8 +43,19 @@ async function handleUssdInput(session, userInput) {
         session.step = nextStepFromChoice;
         currentMenu = menus[session.step];
 
+        // Construire result pour le menu suivant
+        if (currentMenu.handler) {
+          result = await currentMenu.handler(session, null);
+        } else {
+          result = {
+            text: currentMenu.text,
+            end: !!currentMenu.end,
+            nextSteps: currentMenu.nextSteps
+          };
+        }
+
       } else {
-        // pas d'input : rester sur le menu courant
+        // Pas d'input : rester sur le menu courant
         result = {
           text: currentMenu.text,
           nextSteps: currentMenu.nextSteps,
@@ -49,18 +64,19 @@ async function handleUssdInput(session, userInput) {
       }
     }
 
-    // 3️⃣ Menu dynamique ou statique avec handler
-    if (currentMenu?.handler) {
-      // sauvegarde input si saveAs défini
+    // 2️⃣ Menu dynamique ou statique avec handler
+    else if (currentMenu.handler) {
+      // Sauvegarder input si saveAs défini
       if (currentMenu.saveAs && userInput) {
         session.data = session.data || {};
         session.data[currentMenu.saveAs] = userInput;
       }
 
       result = await currentMenu.handler(session, userInput);
+    }
 
-    // 4️⃣ Menu simple statique sans handler ni nextSteps
-    } else if (!result) {
+    // 3️⃣ Menu simple statique sans handler ni nextSteps
+    else if (!result) {
       result = {
         text: currentMenu.text || "Menu indisponible",
         end: !!currentMenu.end
@@ -69,10 +85,14 @@ async function handleUssdInput(session, userInput) {
 
   } catch (err) {
     logError(err, { stage: "menuHandler", step: session.step, sessionId: session.id });
-    return { text: "Erreur, veuillez réessayer", end: true, sequence: session.sequence };
+    return {
+      text: "Erreur, veuillez réessayer",
+      end: true,
+      sequence: session.sequence
+    };
   }
 
-  // 5️⃣ Log JSON
+  // 4️⃣ Log JSON pour Kibana/Grafana
   logJson({
     event: "ROUTER_STEP",
     step: session.step,
@@ -81,10 +101,10 @@ async function handleUssdInput(session, userInput) {
     sessionData: session.data
   });
 
-  // 6️⃣ Fin de parcours
+  // 5️⃣ Fin de parcours : soumettre les données
   if (result.end) {
     try {
-      await submitService.submit(session.data);
+      await submitService.submit(session.data || {});
       logJson({ event: "SUBMIT_DATA", sessionId: session.id, data: session.data });
     } catch (err) {
       logError(err, { stage: "submitService", sessionId: session.id, sequence: session.sequence });
@@ -97,12 +117,12 @@ async function handleUssdInput(session, userInput) {
     };
   }
 
+  // 6️⃣ Retour menu courant ou suivant
   return {
     text: result.text,
     end: false,
     sequence: session.sequence
   };
 }
-
 
 module.exports = handleUssdInput;
