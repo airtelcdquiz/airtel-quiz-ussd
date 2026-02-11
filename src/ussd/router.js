@@ -107,7 +107,7 @@ async function handleUssdInput(session, userInput, msisdn) {
   // 5️⃣ Fin de parcours : soumettre les données
   if (result.end) {
     try {
-      submitService.submit(session.data || {});
+      submitService.submit(result.url, session.data || {});
       logJson({ event: "SUBMIT_DATA", sessionId: session.id, data: session.data });
     } catch (err) {
       logError(err, { stage: "submitService", sessionId: session.id, sequence: session.sequence });
