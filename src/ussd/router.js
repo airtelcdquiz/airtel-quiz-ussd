@@ -12,14 +12,18 @@ const menus = {
 };
 
 async function handleUssdInput(session, userInput, msisdn) {
+  let userInputTrimmed = userInput ? userInput.trim() : null;
   // Injecter MSISDN dès le début
   session.msisdn = session.msisdn || msisdn;
 
   // Compteur de séquence
   session.sequence = (session.sequence || 0) + 1;
 
-  if(session.nextSteps && userInput){
-    session.step = session.nextSteps[userInput.trim()] || session.nextStep ;
+  if(session.nextSteps && userInputTrimmed) {
+    session.step = session.nextSteps[userInputTrimmed] || session.nextStep ;
+    delete session.nextSteps; // Clear nextSteps after using
+    delete session.nextStep;
+    userInputTrimmed = null; // Clear userInput after using
   }
 
   // Récupérer le menu courant
@@ -27,59 +31,65 @@ async function handleUssdInput(session, userInput, msisdn) {
   let result;
 
   try {
-    // 1️⃣ Menu statique avec nextSteps
-    if (currentMenu.nextSteps) {
-      if (userInput) {
-        const choice = userInput.trim();
-        const nextStepFromChoice = currentMenu.nextSteps[choice];
-
-        if (!nextStepFromChoice) {
-          // Choix invalide : rester sur le même menu
-          return {
-            text: `Choix invalide.\n${currentMenu.text}`,
-            end: false,
-            sequence: session.sequence
-          };
-        }
-
-        // Mettre à jour le step avant d’appeler le handler
-        session.step = nextStepFromChoice;
-        currentMenu = menus[session.step];
-
-        // Construire result pour le menu suivant
-        if (currentMenu.handler) {
-          result = await currentMenu.handler(session, null);
-        } else {
-          result = {
-            text: currentMenu.text,
-            end: !!currentMenu.end,
-            nextSteps: currentMenu.nextSteps
-          };
-        }
-
-      } else {
-        // Pas d'input : rester sur le menu courant
-        result = {
-          text: currentMenu.text,
-          nextSteps: currentMenu.nextSteps,
-          end: !!currentMenu.end
-        };
-      }
+    if (currentMenu.handler) { 
+      result = await currentMenu.handler(session, userInputTrimmed); 
+    }else{
+      result = currentMenu;
     }
+
+    // 1️⃣ Menu statique avec nextSteps
+    // if (currentMenu.nextSteps) {
+    //   if (userInputTrimmed) {
+    //     const choice = userInputTrimmed;
+    //     const nextStepFromChoice = currentMenu.nextSteps[choice];
+
+    //     if (!nextStepFromChoice) {
+    //       // Choix invalide : rester sur le même menu
+    //       return {
+    //         text: `Choix invalide.\n${currentMenu.text}`,
+    //         end: false,
+    //         sequence: session.sequence
+    //       };
+    //     }
+
+    //     // Mettre à jour le step avant d’appeler le handler
+    //     session.step = nextStepFromChoice;
+    //     currentMenu = menus[session.step];
+
+    //     // Construire result pour le menu suivant
+    //     if (currentMenu.handler) {
+    //       result = await currentMenu.handler(session, null);
+    //     } else {
+    //       result = {
+    //         text: currentMenu.text,
+    //         end: !!currentMenu.end,
+    //         nextSteps: currentMenu.nextSteps
+    //       };
+    //     }
+
+    //   } else {
+    //     // Pas d'input : rester sur le menu courant
+    //     result = {
+    //       text: currentMenu.text,
+    //       nextSteps: currentMenu.nextSteps,
+    //       end: !!currentMenu.end
+    //     };
+    //   }
+    // }
 
     // 2️⃣ Menu dynamique ou statique avec handler
-    else if (currentMenu.handler) {
-      // Sauvegarder input si saveAs défini
-      // if (currentMenu.saveAs && userInput) {
-      //   session.data = session.data || {};
-      //   session.data[currentMenu.saveAs] = userInput;
-      // }
-      result = await currentMenu.handler(session, userInput);
-      // session.nextSteps = result.nextSteps; // pour le menu suivant
-    }
+    // else if (currentMenu.handler) {
+    //   // Sauvegarder input si saveAs défini
+    //   // if (currentMenu.saveAs && userInput) {
+    //   //   session.data = session.data || {};
+    //   //   session.data[currentMenu.saveAs] = userInput;
+    //   // }
+    //   result = await currentMenu.handler(session, userInput);
+    //   // session.nextSteps = result.nextSteps; // pour le menu suivant
+    // }
 
     // 3️⃣ Menu simple statique sans handler ni nextSteps
-    else if (!result) {
+    if (!result) {
       result = {
         text: currentMenu.text || "Menu indisponible",
         end: !!currentMenu.end
@@ -107,7 +117,7 @@ async function handleUssdInput(session, userInput, msisdn) {
   // 5️⃣ Fin de parcours : soumettre les données
   if (result.end) {
     try {
-      await submitService.submit(session.data || {});
+      submitService.submit(session.data || {});
       logJson({ event: "SUBMIT_DATA", sessionId: session.id, data: session.data });
     } catch (err) {
       logError(err, { stage: "submitService", sessionId: session.id, sequence: session.sequence });
@@ -119,6 +129,7 @@ async function handleUssdInput(session, userInput, msisdn) {
       sequence: session.sequence
     };
   }
+  
   session.nextSteps = result.nextSteps; // pour le menu suivant
   session.nextStep = session.nextStep // default;
 

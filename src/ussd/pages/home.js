@@ -15,9 +15,7 @@ module.exports = {
                     console.error("Erreur API:", err);
                     return {
                         text: "Une erreur est survenue, veuillez réessayer plus tard.",
-                        nextSteps: {
-                            "default": "STARTING_POINT"
-                        }, // reste sur STARTING_POINT pour attendre la réponse
+                        nextStep: "STARTING_POINT", // reste sur STARTING_POINT pour attendre la réponse
                         end: true
                     };
                 });

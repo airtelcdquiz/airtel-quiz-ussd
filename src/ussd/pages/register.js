@@ -9,18 +9,14 @@ module.exports = {
             step: "START_REGISTER",
             text: "Pour vous inscrire, veuillez entrer votre nom complet :",
             saveAs: "name",
-            nextSteps: {
-                "default": "ASK_AGE"
-            },
+            nextStep:  "ASK_AGE" ,
             end: false
         },
     ASK_AGE: {
             step: "ASK_AGE",
             text: "Merci ! Maintenant, veuillez entrer votre âge :",
             saveAs: "age",
-            nextSteps: {
-                "default": "END"
-            },
+            nextStep: "END",
             end: false
         }
 }
