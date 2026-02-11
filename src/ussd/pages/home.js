@@ -31,7 +31,7 @@ module.exports = {
                 if (userData.exist === true) {
                     session.data.user = userData;
                     return {
-                        text: `Bienvenue ${userData.user.name} !\n1. Repondre à la question\n2. Verifier mon score\n3. Infos`,
+                        text: `Bienvenue ${userData.name} !\n1. Repondre à la question\n2. Verifier mon score\n3. Infos`,
                         nextSteps: {
                             "1": "ANSWER_QUESTION",
                             "2": "CHECK_SCORE",
