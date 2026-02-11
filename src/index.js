@@ -23,7 +23,7 @@ app.post("/ussd", async (req, res) => {
   let result = null;
 
   try {
-    session = await getSession(SESSION_ID, defaultSession = { step: "HOME", data: {}, sequence: 1, id: SESSION_ID, mobileNumber: MOBILE_NUMBER });
+    session = await getSession(SESSION_ID, defaultSession = { step: "HOME", data: {mobileNumber: MOBILE_NUMBER}, sequence: 1, id: SESSION_ID, mobileNumber: MOBILE_NUMBER });
 
     try {
       result = await handleUssdInput(session, USER_INPUT);
