@@ -3,8 +3,7 @@ const { api } = require("../../utils/api");
 module.exports = {
 
     // PAGE D'ACCUEIL
-    STARTING_POINT: [
-        {
+    STARTING_POINT: {
             step: "STARTING_POINT",
             handler: async (session, input) => {
                 //On tente de charger les données de l'utilisateur pour savoir s'il est déjà inscrit ou pas
@@ -43,5 +42,4 @@ module.exports = {
                 };
             }
         }
-    ]
 }
