@@ -20,7 +20,7 @@ module.exports = {
                         end: true
                     };
                 });
-                logJson({
+                console.log({
                     event: "HOME_HANDLER",
                     userData: userData,
                     sessionId: session.id,
