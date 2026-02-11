@@ -27,12 +27,16 @@ async function handleUssdInput(session, userInput, msisdn) {
   }
 
   if((session.nextSteps  || session.nextStep )&& userInputTrimmed) {
-    if(session.nextSteps[userInputTrimmed]){
-      step = session.nextSteps[userInputTrimmed];
-      console.log(">>>>>>>> LE USER A CHOISI: ", userInputTrimmed, "=> STEP SUIVANT: ", step);
-    }else if(session.nextStep){
-      step = session.nextStep;
-      console.log(">>>>>>>> STEP SUIVANT PAR DEFAUT: ", step);
+    try{  
+      if(session.nextSteps[userInputTrimmed]){
+        step = session.nextSteps[userInputTrimmed];
+        console.log(">>>>>>>> LE USER A CHOISI: ", userInputTrimmed, "=> STEP SUIVANT: ", step);
+      } 
+    }catch(e){
+      if(session.nextStep){
+        step = session.nextStep;
+        console.log(">>>>>>>> STEP SUIVANT PAR DEFAUT: ", step);
+      }
     }
     userInputTrimmed = null; // Clear userInput after using
   }else{
