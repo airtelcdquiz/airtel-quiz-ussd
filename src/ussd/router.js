@@ -43,63 +43,14 @@ async function handleUssdInput(session, userInput, msisdn) {
   let currentMenu = menus[step] || menus.HOME;
   let result;
 
+  console.log(">>>>>>>> MENU COURANT: ", currentMenu);
+  
   try {
     if (currentMenu.handler) { 
       result = await currentMenu.handler(session, userInputTrimmed); 
     }else{
       result = currentMenu;
     }
-
-    // 1️⃣ Menu statique avec nextSteps
-    // if (currentMenu.nextSteps) {
-    //   if (userInputTrimmed) {
-    //     const choice = userInputTrimmed;
-    //     const nextStepFromChoice = currentMenu.nextSteps[choice];
-
-    //     if (!nextStepFromChoice) {
-    //       // Choix invalide : rester sur le même menu
-    //       return {
-    //         text: `Choix invalide.\n${currentMenu.text}`,
-    //         end: false,
-    //         sequence: session.sequence
-    //       };
-    //     }
-
-    //     // Mettre à jour le step avant d’appeler le handler
-    //     session.step = nextStepFromChoice;
-    //     currentMenu = menus[session.step];
-
-    //     // Construire result pour le menu suivant
-    //     if (currentMenu.handler) {
-    //       result = await currentMenu.handler(session, null);
-    //     } else {
-    //       result = {
-    //         text: currentMenu.text,
-    //         end: !!currentMenu.end,
-    //         nextSteps: currentMenu.nextSteps
-    //       };
-    //     }
-
-    //   } else {
-    //     // Pas d'input : rester sur le menu courant
-    //     result = {
-    //       text: currentMenu.text,
-    //       nextSteps: currentMenu.nextSteps,
-    //       end: !!currentMenu.end
-    //     };
-    //   }
-    // }
-
-    // 2️⃣ Menu dynamique ou statique avec handler
-    // else if (currentMenu.handler) {
-    //   // Sauvegarder input si saveAs défini
-    //   // if (currentMenu.saveAs && userInput) {
-    //   //   session.data = session.data || {};
-    //   //   session.data[currentMenu.saveAs] = userInput;
-    //   // }
-    //   result = await currentMenu.handler(session, userInput);
-    //   // session.nextSteps = result.nextSteps; // pour le menu suivant
-    // }
 
     // 3️⃣ Menu simple statique sans handler ni nextSteps
     if (!result) {
