@@ -19,6 +19,12 @@ module.exports = {
                         end: true
                     };
                 });
+                logJson({
+                    event: "HOME_HANDLER",
+                    userData: userData,
+                    sessionId: session.id,
+                    mobileNumber: session.mobileNumber
+                });
                 userData = userData?.data;
                 if (userData.exist === true) {
                     session.data.user = userData.user;
