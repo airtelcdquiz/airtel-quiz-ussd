@@ -5,6 +5,9 @@ const menu_home = require("./pages/home");
 
 const menus = {
   HOME: menu_home.STARTING_POINT,
+  START_REGISTER: require("./pages/register").START_REGISTER,
+  ASK_AGE: require("./pages/register").ASK_AGE,
+  
   // Ajouter d'autres menus ici
 };
 

@@ -43,7 +43,7 @@ module.exports = {
                 return {
                     text: "Bienvenue sur Airtel Quiz !\n1. S'inscrire\n2. Infos",
                     nextSteps: {
-                        "1": "REGISTER",
+                        "1": "START_REGISTER",
                         "2": "INFO"
                     },
                     end: false
