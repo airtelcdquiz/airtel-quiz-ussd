@@ -9,7 +9,7 @@ module.exports = {
             step: "START_REGISTER",
             text: "Veuillez entrer votre nom complet :",
             saveAs: "name",
-            nextStep:  "SCHOOL_LEVEL" ,
+            nextStep:  "START_REGISTER" ,
             end: false
         },
     SCHOOL_CODE: {
