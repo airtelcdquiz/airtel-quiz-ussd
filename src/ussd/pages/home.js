@@ -9,7 +9,7 @@ module.exports = {
             handler: async (session, input) => {
                 //On tente de charger les données de l'utilisateur pour savoir s'il est déjà inscrit ou pas
                 let userData = null;
-                userData = await api.get(`/users/${session.mobileNumber}`).catch(err => {
+                userData = await api.get(`http://quiz-user-service:3000/api/users/${session.mobileNumber}`).catch(err => {
                     // Sinon, log l'erreur et afficher un message générique à l'utilisateur
                     logError(err, { stage: "STARTING_POINT_HANDLER", sessionId: session.id, mobileNumber: session.mobileNumber });
                     return {
