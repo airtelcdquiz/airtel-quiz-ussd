@@ -1,14 +1,14 @@
 version: "3.9"
 
 services:
-
-  ussd-redis:
-    image: redis:7-alpine
-    container_name: ussd-redis
-    restart: unless-stopped
-    command: ["redis-server", "--appendonly", "no"]
+  ussd_service_default:
+    build: .
+    container_name: ussd_service_default
+    restart: unless-stopped 
     expose:
-      - "6379"
+      - "3000"
+    env_file:
+      - .env
     networks:
       - dokploy-network
 
