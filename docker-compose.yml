@@ -1,18 +1,6 @@
 version: "3.9"
 
 services:
-  ussd_service_default:
-    build: .
-    container_name: ussd_service_default
-    restart: unless-stopped 
-    expose:
-      - "3000"
-    env_file:
-      - .env
-    depends_on:
-      - ussd-redis
-    networks:
-      - dokploy-network
 
   ussd-redis:
     image: redis:7-alpine
@@ -23,41 +11,6 @@ services:
       - "6379"
     networks:
       - dokploy-network
-  
-  ussd-postgres:
-    image: postgres:16-alpine
-    container_name: ussd-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ussd
-      POSTGRES_PASSWORD: ussd
-      POSTGRES_DB: ussd
-    expose:
-      - "5432"
-    networks:
-      - dokploy-network
-    volumes:
-      - /var/containers/volumes/prod/ussd-postgres:/var/lib/postgresql/data
-
-  ussd-pgadmin:
-    image: dpage/pgadmin4
-    container_name: ussd-pgadmin
-    restart: unless-stopped
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@example.com
-      PGADMIN_DEFAULT_PASSWORD: adminpassword
-      PGADMIN_CONFIG_SERVER_MODE: "False"
-    networks:
-      - dokploy-network
-    expose:
-      - "80"
-    depends_on:
-      - ussd-postgres
-
-
-# networks:
-#   dokploy-network:
-#     external: true  # Use the previously created shared network
 
 networks:
   dokploy-network:
