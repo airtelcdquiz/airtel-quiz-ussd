@@ -20,14 +20,21 @@ module.exports = {
             end: false
     },
     SCHOOL_LEVEL:{
-            step: "SCHOOL_LEVEL",
-            text: "Votre niveau :\n1. Education de base\n2. Humanite",
-            saveAs: "school_level",
-            nextSteps: {
-                "1": "SCHOOL_LEVEL_BASIC", 
-                "2": "SCHOOL_LEVEL_HUMANITY"
+            handler: async (session, input)=>{
+                logJson({
+                    input
+                })
+                return {
+                    step: "SCHOOL_LEVEL",
+                    text: "Votre niveau :\n1. Education de base\n2. Humanite", 
+                    nextSteps: {
+                        "1": "SCHOOL_LEVEL_BASIC", 
+                        "2": "SCHOOL_LEVEL_HUMANITY"
+                    },
+                    saveAs: "school_level",
+                    end: false
+                };
             },
-            saveAs: "schoolLevel",
             end: false
     },
     SCHOOL_LEVEL_BASIC: {
