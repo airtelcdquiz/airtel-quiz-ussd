@@ -8,7 +8,6 @@ module.exports = {
     ANSWER: {
         step: "ANSWER",
         text: "Vous avez droit à une seul tentative de pour consulter et repondre à la question ! \n1. Continuer\n2. Plus tard",
-        saveAs: "no",
         nextSteps: {
             "1": "CONTINUE_ANSWER",
             "2": "ANSWER_AFTER"
@@ -18,7 +17,6 @@ module.exports = {
     CONTINUE_ANSWER: {
         step: "CONTINUE_ANSWER",
         handler: async (session, input) => {
-
             return {
                 step: "CONTINUE_ANSWER",
                 text: `${session.sessionData.question_details.question}\n1. Suivant`,
