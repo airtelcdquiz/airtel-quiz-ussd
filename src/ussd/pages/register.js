@@ -28,7 +28,7 @@ module.exports = {
                     const school_result = await api.get(`http://quiz-user-service:3000/api/schools/${input}`);
                     logJson({
                         message: "School Inquiry result",
-                        school_result: school_result.data
+                        school_result: school_result
                     })
                 }catch(e){
                     logError(e, {
