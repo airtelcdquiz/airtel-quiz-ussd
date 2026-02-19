@@ -12,7 +12,7 @@ module.exports = {
         nextSteps: {
             "1": "CONTINUE_ANSWER",
             "2": "ANSWER_AFTER"
-        }  ,
+        },
         end: false
     },
     CONTINUE_ANSWER: {
@@ -29,22 +29,26 @@ module.exports = {
     },
     QUESTION_OPTIONS: {
         step: "QUESTION_OPTIONS",
-        text: `Options :\n1. ${session.sessionData.question_details.option_1}\n2. ${session.sessionData.question_details.option_2}\n3. ${session.sessionData.question_details.option_3}\n4. ${session.sessionData.question_details.option_4}`,
-        saveAs: 'response',
-        nextStep: "QUESTION_ANSWER",
-        end: false
+        handler: async (session, input) => {
+            return {
+                text: `Options :\n1. ${session.sessionData.question_details.option_1}\n2. ${session.sessionData.question_details.option_2}\n3. ${session.sessionData.question_details.option_3}\n4. ${session.sessionData.question_details.option_4}`,
+                saveAs: 'response',
+                nextStep: "QUESTION_ANSWER",
+                end: false
+            }
+        }
     },
     QUESTION_ANSWER: {
         step: "QUESTION_ANSWER",
         handler: async (session, input) => {
-            if(session.sessionData.question_details.response == input){
+            if (session.sessionData.question_details.response == input) {
                 return {
                     step: "QUESTION_ANSWER",
                     text: `Félicitation !! Vous avez fourni la bonne reponse !`,
                     nextStep: "QUESTION_ANSWER",
                     end: true
                 }
-            }else{
+            } else {
                 return {
                     step: "QUESTION_ANSWER",
                     text: `Désolé !! Vous n'avez fourni la bonne reponse`,
@@ -54,24 +58,24 @@ module.exports = {
             }
         }
     },
-     // PAGE D'ACCUEIL
+    // PAGE D'ACCUEIL
     END_ANSWER: {
         step: "END_ANSWER",
         handler: async (session, input) => {
-            return { 
-                text: "Merci d'avoir participé au quiz !", 
+            return {
+                text: "Merci d'avoir participé au quiz !",
                 nextStep: "END_APPLICATION",
-                url:"http://quiz-user-service:3000/api/answers/dayly",
-                end: true 
+                url: "http://quiz-user-service:3000/api/answers/dayly",
+                end: true
             };
         },
     },
     ANSWER_AFTER: {
         step: "ANSWER_AFTER",
-        text: "N'oubliez pas de revenir repondre à la question du jour avan 23:59 !!", 
+        text: "N'oubliez pas de revenir repondre à la question du jour avan 23:59 !!",
         nextStep: "END_APPLICATION",
-        url:"http://quiz-user-service:3000/api/answers/dayly",
-        end: true 
+        url: "http://quiz-user-service:3000/api/answers/dayly",
+        end: true
     }
 
 }
