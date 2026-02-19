@@ -21,12 +21,16 @@ module.exports = {
     },
     SCHOOL_LEVEL:{
             handler: async (session, input)=>{
+                logJson({
+                    message: "Try to get school infos"
+                })
                 try{
                     const school_result = await api.get(`http://quiz-user-service:3000/api/schools/${input}`);
+                    logJson(school_result.data)
                 }catch(e){
                     logError(e)
                     return {
-                         step: "SCHOOL_CODE",
+                        step: "SCHOOL_CODE",
                         text: "Code ecole incorrect !!\n\nVeuillez entrer le code de votre école :",
                         saveAs: "school_code",
                         nextStep: "SCHOOL_LEVEL",
