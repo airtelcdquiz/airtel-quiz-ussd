@@ -31,16 +31,19 @@ module.exports = {
                             },
                             end: false
                         };
-                    }else if(userData.status === "no_question_today") {
-                        return {
-                            text: `Bienvenue ${userData.name} !\n1. Verifier mon score\n2. Infos`,
-                            nextSteps: { 
-                                "1": "CHECK_SCORE",
-                                "2": "INFO"
-                            },
-                            end: false
-                        };
-                    }else if(userData.status === "already_answered") {
+                    // }else if(userData.status === "no_question_today") {
+                    //     return {
+                    //         text: `Bienvenue ${userData.name} !\n1. Verifier mon score\n2. Infos`,
+                    //         nextSteps: { 
+                    //             "1": "CHECK_SCORE",
+                    //             "2": "INFO"
+                    //         },
+                    //         end: false
+                    //     };
+                    }else if(
+                        userData.status === "already_answered" || 
+                        userData.status === "already_read" || 
+                        userData.status === "no_question_today") {
                         return {
                             text: `Bienvenue ${userData.name} !\n1. Verifier mon score\n2. Infos`,
                             nextSteps: { 
