@@ -47,6 +47,7 @@ module.exports = {
                     step: "QUESTION_ANSWER",
                     text: `Félicitation !! Vous avez fourni la bonne reponse !`,
                     nextStep: "QUESTION_ANSWER",
+                    url: "http://quiz-user-service:3000/api/answers/dayly",
                     end: true
                 }
             } else {
@@ -54,6 +55,7 @@ module.exports = {
                     step: "QUESTION_ANSWER",
                     text: `Désolé !! Vous n'avez fourni la bonne reponse`,
                     nextStep: "QUESTION_ANSWER",
+                    url: "http://quiz-user-service:3000/api/answers/dayly",
                     end: true
                 }
             }
