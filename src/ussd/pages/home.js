@@ -21,15 +21,36 @@ module.exports = {
                 userData = userData?.data;
                 if (userData.exist === true) {
                     session.data.user = userData;
-                    return {
-                        text: `Bienvenue ${userData.name} !\n1. Repondre à la question\n2. Verifier mon score\n3. Infos`,
-                        nextSteps: {
-                            "1": "ANSWER",
-                            "2": "CHECK_SCORE",
-                            "3": "INFO"
-                        },
-                        end: false
-                    };
+                    if(userData.status === "question_pending") {
+                        return {
+                            text: `Bienvenue ${userData.name} !\n1. Repondre à la question\n2. Verifier mon score\n3. Infos`,
+                            nextSteps: {
+                                "1": "ANSWER",
+                                "2": "CHECK_SCORE",
+                                "3": "INFO"
+                            },
+                            end: false
+                        };
+                    }else if(userData.status === "no_question_today") {
+                        return {
+                            text: `Bienvenue ${userData.name} !\n1. Verifier mon score\n2. Infos`,
+                            nextSteps: { 
+                                "1": "CHECK_SCORE",
+                                "2": "INFO"
+                            },
+                            end: false
+                        };
+                    }else if(userData.status === "already_answered") {
+                        return {
+                            text: `Bienvenue ${userData.name} !\n1. Verifier mon score\n2. Infos`,
+                            nextSteps: { 
+                                "1": "CHECK_SCORE",
+                                "2": "INFO"
+                            },
+                            end: false
+                        };
+                    }
+                    
                 }
                 return {
                     text: "Bienvenue sur Airtel Quiz !\n1. S'inscrire\n2. Infos",
