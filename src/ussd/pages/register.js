@@ -26,9 +26,14 @@ module.exports = {
                 })
                 try{
                     const school_result = await api.get(`http://quiz-user-service:3000/api/schools/${input}`);
-                    logJson(school_result.data)
+                    logJson({
+                        message: "School Inquiry result",
+                        school_result: school_result.data
+                    })
                 }catch(e){
-                    logError(e)
+                    logError(e, {
+                        message: "School Inquiry Error"
+                    })
                     return {
                         step: "SCHOOL_CODE",
                         text: "Code ecole incorrect !!\n\nVeuillez entrer le code de votre école :",
