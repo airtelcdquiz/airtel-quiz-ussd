@@ -25,38 +25,36 @@ module.exports = {
                     message: "Try to get school infos"
                 })
                 try{
-                    const school_result = await api.get(`http://quiz-user-service:3000/api/schools/${input}`);
-                    
-                    logJson({
-                        message: "School Inquiry result",
-                        url: `http://quiz-user-service:3000/api/schools/${input}`,
-                        //school_result: school_result
-                    })
+                    const school_result = (await api.get(`http://quiz-user-service:3000/api/schools/${input}`)).data;
+                    if(school_result.exist === true){
+                        return {
+                            step: "SCHOOL_LEVEL",
+                            text: "Votre niveau :\n1. Education de base\n2. Humanite", 
+                            nextSteps: {
+                                "1": "SCHOOL_LEVEL_BASIC", 
+                                "2": "SCHOOL_LEVEL_HUMANITY"
+                            },
+                            saveAs: "school_level",
+                            end: false
+                        };
+                    }else{
+                         return {
+                            step: "SCHOOL_CODE",
+                            text: "Code ecole incorrect !!\n\nVeuillez entrer le code de votre école :",
+                            saveAs: "school_code",
+                            nextStep: "SCHOOL_LEVEL",
+                            end: false
+                        };
+                    }
                 }catch(e){
                     logError(e, {
                         message: "School Inquiry Error"
                     })
-                    return {
-                        step: "SCHOOL_CODE",
-                        text: "Code ecole incorrect !!\n\nVeuillez entrer le code de votre école :",
-                        saveAs: "school_code",
-                        nextStep: "SCHOOL_LEVEL",
-                        end: false
-                    };
                 }
                 logJson({
                     input
                 })
-                return {
-                    step: "SCHOOL_LEVEL",
-                    text: "Votre niveau :\n1. Education de base\n2. Humanite", 
-                    nextSteps: {
-                        "1": "SCHOOL_LEVEL_BASIC", 
-                        "2": "SCHOOL_LEVEL_HUMANITY"
-                    },
-                    saveAs: "school_level",
-                    end: false
-                };
+                
             },
             end: false
     },
