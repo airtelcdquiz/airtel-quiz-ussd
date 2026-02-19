@@ -7,7 +7,7 @@ module.exports = {
     // PAGE D'ACCUEIL
     ANSWER: {
         step: "ANSWER",
-        text: "Vous droit à une seul tentative de pour consulter et repondre à la question ! \n1. Continuer\n2. Plus tard",
+        text: "Vous avez droit à une seul tentative de pour consulter et repondre à la question ! \n1. Continuer\n2. Plus tard",
         saveAs: "no",
         nextSteps: {
             "1": "CONTINUE_ANSWER",
