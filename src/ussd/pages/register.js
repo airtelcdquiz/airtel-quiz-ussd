@@ -30,7 +30,7 @@ module.exports = {
                     logJson({
                         message: "School Inquiry result",
                         url: `http://quiz-user-service:3000/api/schools/${input}`,
-                        school_result: school_result
+                        //school_result: school_result
                     })
                 }catch(e){
                     logError(e, {
