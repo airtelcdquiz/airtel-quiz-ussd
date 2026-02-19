@@ -22,7 +22,7 @@ module.exports = {
             console.log("================") 
             return {
                 step: "CONTINUE_ANSWER",
-                text: `${session.data.userquestion_details.question}\n1. Suivant`,
+                text: `${session.data.user.question_details.question}\n1. Suivant`,
                 nextStep: "QUESTION_OPTIONS",
                 end: false
             }
@@ -32,7 +32,7 @@ module.exports = {
         step: "QUESTION_OPTIONS",
         handler: async (session, input) => {
             return {
-                text: `Options :\n1. ${session.data.userquestion_details.option_1}\n2. ${session.data.userquestion_details.option_2}\n3. ${session.data.userquestion_details.option_3}\n4. ${session.data.userquestion_details.option_4}`,
+                text: `Options :\n1. ${session.data.user.question_details.option_1}\n2. ${session.data.user.question_details.option_2}\n3. ${session.data.user.question_details.option_3}\n4. ${session.data.user.question_details.option_4}`,
                 saveAs: 'response',
                 nextStep: "QUESTION_ANSWER",
                 end: false
@@ -42,7 +42,7 @@ module.exports = {
     QUESTION_ANSWER: {
         step: "QUESTION_ANSWER",
         handler: async (session, input) => {
-            if (session.data.userquestion_details.response == input) {
+            if (session.data.user.question_details.response == input) {
                 return {
                     step: "QUESTION_ANSWER",
                     text: `Félicitation !! Vous avez fourni la bonne reponse !`,
