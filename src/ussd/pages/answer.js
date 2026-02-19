@@ -18,7 +18,7 @@ module.exports = {
         step: "CONTINUE_ANSWER",
         handler: async (session, input) => { 
             try{
-                api.post(`http://quiz-user-service:3000/api/users/${session.mobileNumber}/lock-daily-question`)
+                api.post(`http://quiz-user-service:3000/api/users/${session.mobileNumber}/lock-daily-question`, {})
             }catch(e){}
             return {
                 step: "CONTINUE_ANSWER",
