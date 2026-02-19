@@ -24,6 +24,10 @@ const menus = {
 
   // ANSWER PAGES
   ANSWER: menu_answer.ANSWER,
+  CONTINUE_ANSWER: menu_answer.CONTINUE_ANSWER,
+  QUESTION_OPTIONS: menu_answer.QUESTION_OPTIONS,
+  QUESTION_ANSWER: menu_answer.QUESTION_ANSWER,
+  ANSWER_AFTER: menu_answer.ANSWER_AFTER,
   END_ANSWER: menu_answer.END_ANSWER,
 
   // Score PAGES
