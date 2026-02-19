@@ -19,7 +19,7 @@ module.exports = {
         handler: async (session, input) => {
             console.log("================")
             console.log("================")
-            console.log(" ====== >>> ", typeof(session))
+            console.log(" ====== >>> ", typeof(session.data))
             console.log("================")
             console.log("================")
             return {
