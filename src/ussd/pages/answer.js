@@ -17,7 +17,7 @@ module.exports = {
     CONTINUE_ANSWER: {
         step: "CONTINUE_ANSWER",
         handler: async (session, input) => {
-            console.log(session.question_details)
+            console.log(typeof(session.question_details))
             return {
                 step: "CONTINUE_ANSWER",
                 text: `${session.question_details.question}\n1. Suivant`,
