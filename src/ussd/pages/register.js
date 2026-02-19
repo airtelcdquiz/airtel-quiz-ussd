@@ -54,7 +54,6 @@ module.exports = {
                 logJson({
                     input
                 })
-                
             },
             end: false
     },
