@@ -17,9 +17,9 @@ module.exports = {
     CONTINUE_ANSWER: {
         step: "CONTINUE_ANSWER",
         handler: async (session, input) => { 
-            console.log("================")
-            console.log(" ====== >>> ", session.data.user)
-            console.log("================") 
+            try{
+                api.post(`http://quiz-user-service:3000/api/users/${session.mobileNumber}/lock-daily-question`)
+            }catch(e){}
             return {
                 step: "CONTINUE_ANSWER",
                 text: `${session.data.user.question_details.question}\n1. Suivant`,
@@ -43,6 +43,11 @@ module.exports = {
         step: "QUESTION_ANSWER",
         handler: async (session, input) => {
             if (session.data.user.question_details.response == input) {
+                try{
+                    api.post(`http://quiz-user-service:3000/api/users/${session.mobileNumber}/submit-answer`, {
+                        choice: input
+                    })
+                }catch(e){  }
                 return {
                     step: "QUESTION_ANSWER",
                     text: `Félicitation !! Vous avez fourni la bonne reponse !`,
@@ -53,7 +58,7 @@ module.exports = {
             } else {
                 return {
                     step: "QUESTION_ANSWER",
-                    text: `Désolé !! Vous n'avez fourni la bonne reponse`,
+                    text: `Désolé !! Vous n'avez fourni la bonne reponse !`,
                     nextStep: "QUESTION_ANSWER",
                     url: "http://quiz-user-service:3000/api/answers/dayly",
                     end: true
@@ -75,7 +80,7 @@ module.exports = {
     },
     ANSWER_AFTER: {
         step: "ANSWER_AFTER",
-        text: "N'oubliez pas de revenir repondre à la question du jour avan 23:59 !!",
+        text: "N'oubliez pas de revenir repondre à la question du jour avant 23:59 !!",
         nextStep: "END_APPLICATION",
         url: "http://quiz-user-service:3000/api/answers/dayly",
         end: true
