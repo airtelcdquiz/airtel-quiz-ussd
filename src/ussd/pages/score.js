@@ -6,11 +6,16 @@ module.exports = {
 
     // PAGE D'ACCUEIL
     CHECK_SCORE: {
-        step: "CHECK_SCORE",
-        text: "Votre scrore est en cours de calcul. Il vous sera envoyé par SMS", 
-        nextStep:  "END_APPLICATION" ,
-        url: "http://quiz-user-service:3000/api/scores",
-        end: true
+        handler: async (session, input) => {
+            try{ await api.get(`http://quiz-user-service:3000/api/users/${session.mobileNumber}/score`) } catch(e){}
+            return {
+                step: "CHECK_SCORE",
+                text: "Votre scrore est en cours de calcul. Il vous sera envoyé par SMS", 
+                nextStep:  "END_APPLICATION" ,
+                // url: "http://quiz-user-service:3000/api/scores",
+                end: true
+            }
+        }
     },
 
 }
