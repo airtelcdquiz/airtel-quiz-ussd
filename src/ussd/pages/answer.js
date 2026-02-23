@@ -47,7 +47,7 @@ module.exports = {
                     logJson({"e":"############################################"})
                     logJson({"e":"############################################"})
                     logJson({"e":"############################################"})
-                    logJson({"e":`http://quiz-user-service:3000/api/users/${session.mobileNumber}/submit-answer`})
+                    logJson({"e":"############################################"})
 
                     api.post(`http://quiz-user-service:3000/api/users/${session.mobileNumber}/submit-answer`, {
                         choice: input
@@ -67,7 +67,7 @@ module.exports = {
                     step: "QUESTION_ANSWER",
                     text: `Félicitation !! Vous avez fourni la bonne reponse !`,
                     nextStep: "QUESTION_ANSWER",
-                    url: "http://quiz-user-service:3000/api/answers/dayly",
+                    // url: "http://quiz-user-service:3000/api/answers/dayly",
                     end: true
                 }
             } else {
@@ -75,7 +75,7 @@ module.exports = {
                     step: "QUESTION_ANSWER",
                     text: `Désolé !! Vous n'avez fourni la bonne reponse !`,
                     nextStep: "QUESTION_ANSWER",
-                    url: "http://quiz-user-service:3000/api/answers/dayly",
+                    // url: "http://quiz-user-service:3000/api/answers/dayly",
                     end: true
                 }
             }
