@@ -46,7 +46,14 @@ module.exports = {
                 try{
                     api.post(`http://quiz-user-service:3000/api/users/${session.mobileNumber}/submit-answer`, {
                         choice: input
+                    }).then(result => {
+                        logJson(result.data)
+                    }).catch(error => {
+                        logError(error, {
+                            "message": "Erreur lors de la tentative de transmission de la valuer de la reponse"
+                        })
                     })
+
                 }catch(e){  }
                 return {
                     step: "QUESTION_ANSWER",
