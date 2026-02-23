@@ -44,6 +44,11 @@ module.exports = {
         handler: async (session, input) => {
             if (session.data.user.question_details.response == input) {
                 try{
+                    logJson({"e":"############################################"})
+                    logJson({"e":"############################################"})
+                    logJson({"e":"############################################"})
+                    logJson({"e":`http://quiz-user-service:3000/api/users/${session.mobileNumber}/submit-answer`})
+
                     api.post(`http://quiz-user-service:3000/api/users/${session.mobileNumber}/submit-answer`, {
                         choice: input
                     }).then(result => {
@@ -53,6 +58,9 @@ module.exports = {
                             "message": "Erreur lors de la tentative de transmission de la valuer de la reponse"
                         })
                     })
+                    logJson({"e":"############################################"})
+                    logJson({"e":"############################################"})
+                    logJson({"e":"############################################"})
 
                 }catch(e){  }
                 return {
@@ -80,7 +88,7 @@ module.exports = {
             return {
                 text: "Merci d'avoir participé au quiz !",
                 nextStep: "END_APPLICATION",
-                url: "http://quiz-user-service:3000/api/answers/dayly",
+                // url: "http://quiz-user-service:3000/api/answers/dayly",
                 end: true
             };
         },
@@ -89,7 +97,7 @@ module.exports = {
         step: "ANSWER_AFTER",
         text: "N'oubliez pas de revenir repondre à la question du jour avant 23:59 !!",
         nextStep: "END_APPLICATION",
-        url: "http://quiz-user-service:3000/api/answers/dayly",
+        // url: "http://quiz-user-service:3000/api/answers/dayly",
         end: true
     }
 
