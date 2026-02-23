@@ -53,8 +53,7 @@ module.exports = {
             console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
             console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
             console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-            if (session.data.user.question_details.response == input) {
-                try{
+            try{
                     logJson({"e":"############################################"})
                     logJson({"e":"############################################"})
                     logJson({"e":"############################################"})
@@ -86,6 +85,8 @@ module.exports = {
                     logJson({"e":"############################################"});
 
                 }
+                
+            if (session.data.user.question_details.response == input) {
                 return {
                     step: "QUESTION_ANSWER",
                     text: `Félicitation !! Vous avez fourni la bonne reponse !`,
