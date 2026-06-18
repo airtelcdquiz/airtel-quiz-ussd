@@ -10,7 +10,7 @@ module.exports = {
         text: "Airtel Quiz est un jeu de quiz interactif accessible via USSD, conçu pour les étudiants\n1. Me désabonner",
         nextSteps: {
             "1": "UNSUSCRIBE",
-            "any": "END_APPLICATION"
+            "2": "END_APPLICATION"
         },
         end: false
     },
