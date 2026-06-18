@@ -11,6 +11,8 @@ const menu_commun = require("./pages/commun");
 const menus = {
   HOME: menu_home.STARTING_POINT,
   INFO: menu_info.INFO,
+  UNSUSCRIBE: menu_info.UNSUSCRIBE,
+  UNSUSCRIBE_APPLY: menu_info.UNSUSCRIBE_APPLY,
   CHECK_SCORE: menu_score.CHECK_SCORE,
 
   // REGISTER PAGES

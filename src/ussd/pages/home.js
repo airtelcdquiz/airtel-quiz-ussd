@@ -19,7 +19,7 @@ module.exports = {
                     };
                 });
                 userData = userData?.data;
-                if (userData.exist === true) {
+                if (userData.exist === true && userData.is_subscribed !== false) {
                     session.data.user = userData;
                     if(userData.status === "question_pending") {
                         return {
