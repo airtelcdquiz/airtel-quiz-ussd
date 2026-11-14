@@ -66,7 +66,7 @@ module.exports = {
     }, 
     SCHOOL_LEVEL_HUMANITY: {
         step: "SCHOOL_LEVEL_HUMANITY",
-        text: "Votre option : \n1. Littéraire\n2. Commercial\n3. Math-Physique\n4. Scientifique",
+        text: "Votre option : \n1. Littéraire\n2. Commercial\n3. Math-Physique\n4. Scientifique\n5. Électronique\n6. Électricité\n7. Mécanique",
         nextStep: "SCHOOL_LEVEL_HUMANITY_CLASS",
         saveAs: "school_option",
         end: false
