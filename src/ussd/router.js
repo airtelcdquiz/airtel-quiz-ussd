@@ -19,6 +19,7 @@ const menus = {
   START_REGISTER: menu_register.START_REGISTER, 
   SCHOOL_CODE: menu_register.SCHOOL_CODE,
   SCHOOL_LEVEL: menu_register.SCHOOL_LEVEL,
+  SCHOOL_LEVEL_RETRY: menu_register.SCHOOL_LEVEL_RETRY,
   SCHOOL_LEVEL_BASIC: menu_register.SCHOOL_LEVEL_BASIC,
   SCHOOL_LEVEL_HUMANITY: menu_register.SCHOOL_LEVEL_HUMANITY,
   SCHOOL_LEVEL_HUMANITY_CLASS: menu_register.SCHOOL_LEVEL_HUMANITY_CLASS,
@@ -59,7 +60,11 @@ async function handleUssdInput(session, userInput, msisdn) {
       if(session.nextSteps[userInputTrimmed]){
         step = session.nextSteps[userInputTrimmed];
         logJson({ event: "USER_INPUT_STEP", input: userInputTrimmed, nextStep: step, sessionId: session.id }); 
-      } 
+      } else if (session.invalidStep) {
+        // Choix hors menu : on redemande au lieu de renvoyer a l'accueil.
+        step = session.invalidStep;
+        logJson({ event: "USER_INPUT_INVALID", input: userInputTrimmed, nextStep: step, sessionId: session.id });
+      }
     }catch(e){
       if(session.nextStep){
         step = session.nextStep;
@@ -131,7 +136,10 @@ async function handleUssdInput(session, userInput, msisdn) {
   session.nextSteps = result.nextSteps; // pour le menu suivant
   session.nextStep = result.nextStep // default;
   session.step = step  // Mettre à jour le step pour les logs
-  session.stepSaveAs = currentMenu.saveAs; // pour les logs
+  session.invalidStep = result.invalidStep; // menu a reafficher si choix invalide
+  // Un handler peut changer la cle de sauvegarde (ex. ressaisie du code ecole) :
+  // celle du resultat prime sur celle du menu.
+  session.stepSaveAs = result.saveAs || currentMenu.saveAs;
 
   // 6️⃣ Retour menu courant ou suivant
   return {
