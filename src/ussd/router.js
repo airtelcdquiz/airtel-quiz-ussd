@@ -7,6 +7,7 @@ const menu_info = require("./pages/info");
 const menu_score = require("./pages/score");
 const menu_answer = require("./pages/answer");
 const menu_commun = require("./pages/commun");
+const menu_tvshow = require("./pages/tvshow");
 
 const menus = {
   HOME: menu_home.STARTING_POINT,
@@ -37,7 +38,16 @@ const menus = {
   CHECK_SCORE: menu_score.CHECK_SCORE,
 
   // COMMUN PAGES
-  END_APPLICATION: menu_commun.END_APPLICATION
+  END_APPLICATION: menu_commun.END_APPLICATION,
+
+  // TV SHOW (direct)
+  TV_MENU: menu_tvshow.TV_MENU,
+  TV_CODE: menu_tvshow.TV_CODE,
+  TV_REGISTER: menu_tvshow.TV_REGISTER,
+  TV_LIVE: menu_tvshow.TV_LIVE,
+  TV_OPTIONS: menu_tvshow.TV_OPTIONS,
+  TV_ANSWER_INPUT: menu_tvshow.TV_ANSWER_INPUT,
+  TV_SUBMIT: menu_tvshow.TV_SUBMIT
 };
 
 async function handleUssdInput(session, userInput, msisdn) {
