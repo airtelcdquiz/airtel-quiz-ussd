@@ -1,5 +1,6 @@
 const { api } = require("../../utils/api");
 const { logJson, logError } = require("../../utils/logger");
+const tvshow = require("./tvshow");
 
 module.exports = {
 
@@ -7,6 +8,15 @@ module.exports = {
     STARTING_POINT: {
             step: "STARTING_POINT",
             handler: async (session, input) => {
+                // TV Show : un joueur inscrit à une session en direct voit le menu du direct
+                // à la place du menu habituel (sans appeler le service des profils).
+                const tvState = await tvshow.tv.state(session.mobileNumber);
+                if (tvState && tvState.mode === "live") return tvshow.renderLive(session, tvState);
+                const tvEntry = !!tvState && (tvState.registration_open || tvState.mode === "upcoming" || tvState.mode === "ended");
+                const withTv = (text, steps) => tvEntry
+                    ? { text: `${text}\n9. TV Show`, nextSteps: { ...steps, "9": "TV_MENU" } }
+                    : { text, nextSteps: steps };
+
                 //On tente de charger les données de l'utilisateur pour savoir s'il est déjà inscrit ou pas
                 let userData = null;
                 userData = await api.get(`http://quiz-user-service:3000/api/users/${session.mobileNumber}`).catch(err => {
@@ -19,16 +29,15 @@ module.exports = {
                     };
                 });
                 userData = userData?.data;
-                if (userData.exist === true && userData.is_subscribed !== false) {
+                if (userData?.exist === true && userData.is_subscribed !== false) {
                     session.data.user = userData;
                     if(userData.status === "question_pending") {
                         return {
-                            text: `Bienvenue ${userData.name} !\n1. Repondre à la question\n2. Verifier mon score\n3. Infos`,
-                            nextSteps: {
+                            ...withTv(`Bienvenue ${userData.name} !\n1. Repondre à la question\n2. Verifier mon score\n3. Infos`, {
                                 "1": "ANSWER",
                                 "2": "CHECK_SCORE",
                                 "3": "INFO"
-                            },
+                            }),
                             end: false
                         };
                     // }else if(userData.status === "no_question_today") {
@@ -45,11 +54,10 @@ module.exports = {
                         userData.status === "already_read" || 
                         userData.status === "no_question_today") {
                         return {
-                            text: `Bienvenue ${userData.name} !\n1. Verifier mon score\n2. Infos`,
-                            nextSteps: { 
+                            ...withTv(`Bienvenue ${userData.name} !\n1. Verifier mon score\n2. Infos`, {
                                 "1": "CHECK_SCORE",
                                 "2": "INFO"
-                            },
+                            }),
                             end: false
                         };
                     }
